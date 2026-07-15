@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Hanis | Clinical Bluebook</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons for elegant medical iconography -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Elegant Fonts: Playfair Display (Serif) & Plus Jakarta Sans (Sans) -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Custom Configuration for the Sophisticated Feminine Theme -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    },
+                    colors: {
+                        blush: {
+                            50: '#fdf8f9',
+                            100: '#faeaef',
+                            200: '#f4d5e0',
+                            300: '#ecb4c8',
+                            400: '#e089a8',
+                            500: '#d16187',
+                            600: '#bb4368',
+                            700: '#9d3251',
+                            800: '#832c45',
+                            900: '#70273e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #f4d5e0; border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #ecb4c8; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-blush-50 font-sans text-slate-800 h-screen overflow-hidden flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-blush-100 shadow-sm z-20 flex-none relative">
+        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button id="mobile-menu-btn" class="lg:hidden text-blush-600 hover:text-blush-800 focus:outline-none bg-blush-50 p-2 rounded-lg transition-colors z-30 relative cursor-pointer">
+                    <i class="ph ph-list text-2xl pointer-events-none"></i>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blush-400 to-blush-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blush-200">
+                        <i class="ph-fill ph-stethoscope text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-serif font-bold text-xl text-slate-800 tracking-wide">Dr. Hanis</h1>
+                        <p class="text-[10px] uppercase tracking-widest text-blush-500 font-bold">Clinical Bluebook</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right: Profile -->
+            <div class="flex items-center space-x-4">
+                <div class="h-9 w-9 rounded-full border-2 border-blush-200 overflow-hidden bg-blush-100 flex items-center justify-center text-blush-600 font-bold">
+                    DH
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden relative">
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="absolute lg:relative z-[40] w-80 h-full bg-white border-r border-blush-100 flex flex-col transition-transform duration-300 transform -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none">
+            <div id="sidebar-menu" class="flex-1 overflow-y-auto px-3 py-6 space-y-2 custom-scrollbar">
+                <!-- JavaScript populates this area -->
+            </div>
+        </aside>
+
+        <!-- Mobile Overlay -->
+        <div id="mobile-overlay" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm z-[35] hidden lg:hidden transition-opacity cursor-pointer"></div>
+
+        <!-- Reading Area -->
+        <main class="flex-1 overflow-y-auto bg-blush-50/40 p-4 sm:p-8 lg:p-12 relative scroll-smooth custom-scrollbar" id="main-content-area">
+            <article class="max-w-4xl mx-auto bg-white rounded-2xl shadow-[0_4px_25px_-5px_rgba(209,97,135,0.15)] p-6 sm:p-12 lg:p-16 border border-white relative min-h-[80vh] flex flex-col">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blush-300 via-blush-500 to-blush-300 rounded-t-2xl"></div>
+
+                <div id="reading-container" class="flex-grow">
+                    <div class="flex flex-col items-center justify-center h-full text-center text-slate-400 mt-20">
+                        <i class="ph-fill ph-book-open text-6xl text-blush-200 mb-4"></i>
+                        <h2 class="font-serif text-2xl text-slate-600 mb-2">Welcome to your Clinical Bluebook</h2>
+                        <p>Select a chapter from the menu to start reading.</p>
+                    </div>
+                </div>
+
+                <div id="chapter-navigation" class="mt-16 pt-8 border-t border-blush-100 flex flex-col sm:flex-row justify-between items-center gap-4 hidden">
+                    <button id="btn-prev" class="w-full sm:w-auto px-6 py-3 border-2 border-blush-100 text-blush-600 font-bold rounded-xl hover:bg-blush-50 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
+                        <i class="ph ph-arrow-left pointer-events-none"></i>
+                        <span id="btn-prev-text" class="pointer-events-none">Previous</span>
+                    </button>
+                    <button id="btn-next" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blush-500 to-blush-600 text-white font-bold rounded-xl shadow-md hover:shadow-lg hover:from-blush-600 hover:to-blush-700 transition-all flex items-center justify-center space-x-2 group cursor-pointer">
+                        <span id="btn-next-text" class="pointer-events-none">Next</span>
+                        <i class="ph ph-arrow-right group-hover:translate-x-1 transition-transform pointer-events-none"></i>
+                    </button>
+                </div>
+            </article>
+            <div class="h-16"></div>
+        </main>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- STRICT OUTLINE DATABASE WITH NEW PDF CONTENT ADDED ---
+        const libraryData = [
+            {
+                id: 'med',
+                title: 'Internal Medicine',
+                icon: 'ph-lungs',
+                chapters: [
+                    { id: 'im-1', title: 'ACS (acute coronary syndrome)', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">ACS (Acute Coronary Syndrome)</h1><p class="text-slate-700">Immediate assessment required. Perform 12-lead ECG immediately upon arrival to differentiate STEMI from Non-STEMI. Time is myocardium.</p>` },
+                    { id: 'im-2', title: 'Acute STEMI', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Acute STEMI</h1><div class="bg-blush-50 p-6 rounded-xl border border-blush-100"><h3 class="font-bold text-blush-800 mb-2">Initial Pharmacotherapy</h3><ul class="list-disc ml-5 space-y-1 text-slate-700"><li><strong>Aspirin:</strong> 300mg crushed/chewed</li><li><strong>Nitroglycerin:</strong> 0.4mg SL (Avoid in RV Infarct)</li><li><strong>Oxygen:</strong> ONLY if SpO2 is hypoxic.</li></ul></div>` },
+                    { id: 'im-3', title: 'Heart Failure', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Heart Failure</h1><p class="text-slate-700">Management aims to alleviate symptoms and reduce hospitalisations. Identify and treat underlying causes (hypertension, CAD). Treat volume overload with diuretics.</p>` },
+                    { id: 'im-4', title: 'Acute heart failure', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Acute Heart Failure</h1><p class="text-slate-700">For advanced/refractory cases, IV Infusion of Furosemide or low dose dobutamine (5mcg/kg/min) or milrinone may be required for stabilization. Assess for CPAP/BiPAP if in pulmonary edema.</p>` },
+                    { id: 'im-5', title: 'Chronic heart failure', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Chronic Heart Failure</h1><p class="text-slate-700">Hypertension remains the most prevalent comorbidity of HFpEF. Long term management focuses on optimizing beta-blockers, ACEi/ARNI, MRAs, and SGLT2 inhibitors (guideline directed medical therapy).</p>` },
+                    { id: 'im-6', title: 'Stroke', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Stroke</h1>
+                        <h3 class="font-bold text-xl text-slate-800 mt-6 mb-2">Bamford Classification</h3>
+                        <div class="overflow-x-auto rounded-xl border border-blush-100 mb-8">
+                            <table class="min-w-full divide-y divide-blush-100">
+                                <thead class="bg-blush-50">
+                                    <tr><th class="px-4 py-3 text-left text-xs font-bold text-blush-700 uppercase">Type</th><th class="px-4 py-3 text-left text-xs font-bold text-blush-700 uppercase">Characteristics</th></tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-blush-50">
+                                    <tr class="hover:bg-blush-50/50"><td class="px-4 py-3 font-bold">LACI</td><td class="px-4 py-3 text-sm">Pure motor/sensory. 1 symptom only. NO visual/higher motor dysfunction.</td></tr>
+                                    <tr class="hover:bg-blush-50/50"><td class="px-4 py-3 font-bold">PACI</td><td class="px-4 py-3 text-sm">2 of 3 TACI symptoms OR isolated higher cortical dysfunction.</td></tr>
+                                    <tr class="hover:bg-blush-50/50"><td class="px-4 py-3 font-bold">TACI</td><td class="px-4 py-3 text-sm">All 3: Unilateral weakness + Visual disturbances + Higher cortical dysfunction.</td></tr>
+                                    <tr class="hover:bg-blush-50/50"><td class="px-4 py-3 font-bold">POCI</td><td class="px-4 py-3 text-sm">Cerebellar/brainstem signs, isolated hemianopia, crossed signs.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h3 class="font-bold text-xl text-slate-800 mt-8 mb-2">Presentation Tips for Stroke Round</h3>
+                        <div class="bg-blush-50 p-6 rounded-xl border border-blush-100 shadow-sm">
+                            <h4 class="font-bold text-blush-800 mb-2 flex items-center"><i class="ph-fill ph-identification-card mr-2"></i> Must Include in Introduction:</h4>
+                            <ul class="list-disc ml-5 space-y-1 text-slate-700 text-sm mb-4">
+                                <li>Patient biodata (Age / Race / Sex)</li>
+                                <li>Underlying disease</li>
+                                <li>Social history: Married or not? Children (how many)? Lives with who?</li>
+                                <li>Dominant hand (Right or Left)</li>
+                            </ul>
+                            <h4 class="font-bold text-blush-800 mb-2 flex items-center"><i class="ph-fill ph-clock mr-2"></i> History of Presenting Illness:</h4>
+                            <ul class="list-disc ml-5 space-y-1 text-slate-700 text-sm">
+                                <li>Previously well? Or having h/o stroke, with residual or no?</li>
+                                <li>Presented with (exact symptoms) at (specific time) am/pm.</li>
+                            </ul>
+                        </div>
+                        ` 
+                    },
+                    { id: 'im-7', title: 'Dengue fever', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Dengue Fever</h1><p class="text-slate-700">Constant monitoring of hematocrit and hemodynamic status is vital in the critical phase. Fluid resuscitation should be carefully titrated to avoid fluid overload while maintaining perfusion.</p>` },
+                    { id: 'im-8', title: 'Diabetes Mellitus', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Diabetes Mellitus</h1><div class="bg-white p-5 border border-blush-100 rounded-xl shadow-sm"><h4 class="font-bold text-blush-600 mb-2">Inpatient Glycaemic Targets</h4><ul class="text-slate-700 ml-4 list-disc"><li>Pre-meal: 5.0 - 7.8 mmol/L</li><li>Random / Post-prandial: &lt; 10.0 mmol/L</li><li>Hypo Alert: BG &lt; 3.9 mmol/L requires immediate intervention.</li></ul></div>` },
+                    { id: 'im-9', title: 'DKA', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">DKA</h1><p class="text-slate-700">Diabetic Ketoacidosis. Follow strict fluid resuscitation, IV insulin protocols, and frequent electrolyte (Potassium) monitoring per standard CPG. Resolution criteria: pH > 7.3, Bicarbonate > 15, Ketones < 0.6.</p>` },
+                    { id: 'im-10', title: 'Hypertensive Crisis', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Hypertensive Crisis</h1><p class="text-slate-700">Differentiate between Hypertensive Urgency and Emergency (target organ damage like encephalopathy, ACS, acute pulmonary edema). Lower BP gradually (max 25% in first hour) to avoid cerebral ischemia.</p>` },
+                    { id: 'im-11', title: 'Bronchial Asthma', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Bronchial Asthma</h1><p class="text-slate-700">Standardized management involves assessing symptom control, identifying risk factors, and adjusting inhaler therapies (SABA, ICS, LAMA) using a stepwise approach.</p>` },
+                    { id: 'im-12', title: 'AEBA', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">AEBA</h1><div class="bg-blush-50 p-6 rounded-xl border border-blush-100"><h3 class="font-bold text-blush-800 mb-2">ALS Reminder (Asthma Cardiac Arrest)</h3><p class="text-slate-700 text-sm">Main causes of cardiac arrest in asthma patients: Hypoxaemia, Severe bronchospasm, Mucous plugging, Arrhythmias, Tension pneumothorax.</p></div>` },
+                    { id: 'im-13', title: 'COPD', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">COPD</h1><p class="text-slate-700">Long term management: smoking cessation, inhaler therapy (LAMA/LABA/ICS depending on GOLD group), and pulmonary rehabilitation.</p>` },
+                    { id: 'im-14', title: 'AECOPD', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">AECOPD</h1><p class="text-slate-700">Administer controlled oxygen (target SpO2 88-92%), nebulizers, systemic steroids, and antibiotics if signs of bacterial infection are present (increased sputum purulence/volume).</p>` },
+                    { id: 'im-15', title: 'Tuberculosis', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Tuberculosis</h1><p class="text-slate-700">Ensure airborne precautions. Must be excluded in patients presenting with pleural effusion or empyema. Send sputum for AFB smear and GeneXpert.</p>` },
+                    { id: 'im-16', title: 'Kidney Failure', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Kidney Failure</h1><p class="text-slate-700">Strict blood pressure control, reduction of proteinuria, and optimal glycaemic control delay progression. Screen for anaemia and CKD-MBD.</p>` },
+                    { id: 'im-17', title: 'Page 62-80 (all formulas and criterias)', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Internal Medicine</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Page 62-80 (Formulas & Criterias)</h1>
+                        <div class="space-y-4">
+                            <!-- Existing Formulas -->
+                            <div class="bg-blush-50 border-l-4 border-blush-400 p-5 rounded-r-xl shadow-sm"><h3 class="font-bold text-lg text-slate-800 mb-2">Corrected Sodium (in Hyperglycemia)</h3><p class="font-mono text-blush-600 font-bold mb-2">Na_corr = Na_measured + 0.016 × (Glucose - 100)</p></div>
+                            <div class="bg-blush-50 border-l-4 border-blush-400 p-5 rounded-r-xl shadow-sm"><h3 class="font-bold text-lg text-slate-800 mb-2">Potassium Deficit</h3><p class="text-sm">For every 0.1 mEq/L decrease in serum K+ below 3.5 mEq/L, total body potassium deficit is approx 100 to 200 mEq.</p></div>
+                            <div class="bg-blush-50 border-l-4 border-blush-400 p-5 rounded-r-xl shadow-sm"><h3 class="font-bold text-lg text-slate-800 mb-2">ACLS Algorithm</h3><p class="text-sm">Shockable: VF/pVT. Non-Shockable: PEA/Asystole.</p></div>
+
+                            <!-- NEW: Emergency Mnemonics Box -->
+                            <div class="bg-blush-50 border-l-4 border-blush-500 p-5 rounded-r-xl shadow-md mt-8">
+                                <h3 class="font-serif font-bold text-2xl text-slate-900 mb-4 border-b border-blush-200 pb-2">Emergency Mnemonics</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                    <div>
+                                        <h4 class="font-bold text-blush-800 text-sm mb-1">Altered Mental Status (AEIOU TIPS)</h4>
+                                        <ul class="text-sm text-slate-700 leading-tight space-y-1">
+                                            <li><b>A</b> - Alcohol / Drugs / Acidosis</li>
+                                            <li><b>E</b> - Electrolytes / Epilepsy</li>
+                                            <li><b>I</b> - Insulin (Hypoglycemia)</li>
+                                            <li><b>O</b> - Oxygen (Hypoxia) / Overdose</li>
+                                            <li><b>U</b> - Uraemia</li>
+                                            <li><b>T</b> - Trauma / Tumor</li>
+                                            <li><b>I</b> - Infections (CNS/Systemic)</li>
+                                            <li><b>P</b> - Psychiatric / Poisoning</li>
+                                            <li><b>S</b> - SOL / SAH / Stroke / Seizure</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-blush-800 text-sm mb-1">San Francisco Syncope (CHESS)</h4>
+                                        <ul class="text-sm text-slate-700 leading-tight space-y-1">
+                                            <li><b>C</b> - CCF</li>
+                                            <li><b>H</b> - Hemotocrit &lt; 30</li>
+                                            <li><b>E</b> - ECG Changes</li>
+                                            <li><b>S</b> - SOB (Shortness of breath)</li>
+                                            <li><b>S</b> - SBP &lt; 90mmHg</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-blush-800 text-sm mb-1">Severe Pneumonia (CURB-65)</h4>
+                                        <ul class="text-sm text-slate-700 leading-tight space-y-1">
+                                            <li><b>C</b> - Confused</li>
+                                            <li><b>U</b> - Urea &gt; 7.0</li>
+                                            <li><b>R</b> - Respiratory rate &gt; 30</li>
+                                            <li><b>B</b> - SBP &lt; 90mmHg</li>
+                                            <li><b>65</b> - Age &ge; 65 y/o</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-blush-800 text-sm mb-1">Intubation Prep (DR MALES)</h4>
+                                        <ul class="text-sm text-slate-700 leading-tight space-y-1">
+                                            <li><b>D</b> - Drugs</li>
+                                            <li><b>R</b> - Reversal & resuscitation</li>
+                                            <li><b>M</b> - Mask (BVM)</li>
+                                            <li><b>A</b> - Airway</li>
+                                            <li><b>L</b> - Laryngoscope</li>
+                                            <li><b>E</b> - ETT</li>
+                                            <li><b>S</b> - Suction</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-blush-800 text-sm mb-1">Pretreatment (LOAD) & Cricoid (BURP)</h4>
+                                        <p class="text-sm text-slate-700 leading-tight"><b>LOAD:</b> Lignocaine, Opiod, Atropine, Defasciculation.<br><b>BURP:</b> Backward, Upward, Rightward, Pressure.</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-blush-800 text-sm mb-1">Indications for Intubation (POPIA)</h4>
+                                        <p class="text-sm text-slate-700 leading-tight"><b>P</b>rotection, <b>O</b>xygenation, <b>P</b>rophylaxis, <b>I</b>ntratracheal drug admin, <b>A</b>ssisted Ventilation.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>` 
+                    }
+                ]
+            },
+            {
+                id: 'surg',
+                title: 'Surgical',
+                icon: 'ph-knife',
+                chapters: [
+                    { id: 'sx-1', title: 'Pre op & Post op', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Pre op & Post op</h1><div class="bg-blush-50 p-6 rounded-xl border border-blush-100"><h3 class="font-bold text-blush-800 mb-3">Blood Guidelines</h3><ul class="space-y-2 text-sm text-slate-700"><li><strong>GSH (Group-Screen-Hold):</strong> Blood screened for antibody.</li><li><strong>GXM (Group-cross-match):</strong> Blood matched for specific donor unit for possible transfusion.</li><li><strong>Packed Cells:</strong> Increases Hb by 1-1.5g. Target Hb > 10 for CAD, > 8 for healthy symptomatic.</li><li><strong>Platelets:</strong> Must be > 50 before surgery.</li></ul></div>` },
+                    { id: 'sx-2', title: 'Acute abdomen', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Acute abdomen</h1><p class="text-slate-700">Evaluate thoroughly. Ensure NBM, set up IV lines for hydration. Consider differentials: Appendicitis, Cholecystitis, Perforated viscus, Pancreatitis.</p>` },
+                    { id: 'sx-3', title: 'Gastritis', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Gastritis</h1><p class="text-slate-700">Assess for red flag symptoms (bleeding, weight loss, dysphagia) which require endoscopy. Rule out perforated peptic ulcer if severe acute pain is present.</p>` },
+                    { id: 'sx-4', title: 'Appendicitis', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Appendicitis</h1><p class="text-slate-700">Clinical diagnosis. Alvarado score can guide decision making. Prepare for emergency appendicectomy (NBM, IV fluids, analgesia, antibiotics).</p>` },
+                    { id: 'sx-5', title: 'Pancreatitis', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Pancreatitis</h1><p class="text-slate-700">Aggressive fluid resuscitation, NBM, analgesia. Monitor for complications using Glasgow or Ranson's criteria. Check amylase/lipase.</p>` },
+                    { id: 'sx-6', title: 'Gallstone disease', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Gallstone disease</h1><p class="text-slate-700">Ultrasound HBS is imaging of choice. Differentiate biliary colic from acute cholecystitis or ascending cholangitis (Charcot's triad).</p>` },
+                    { id: 'sx-7', title: 'Goitre', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Goitre</h1><p class="text-slate-700">Assess thyroid status (TSH, T4). Ultrasound neck and FNAC for suspicious nodules prior to surgical planning.</p>` },
+                    { id: 'sx-8', title: 'Pneumothorax', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Pneumothorax</h1><p class="text-slate-700">Chest tube insertion indicated for significant or symptomatic pneumothorax. Tension pneumothorax requires immediate needle decompression prior to CXR.</p>` },
+                    { id: 'sx-9', title: 'Groin & Genitalia', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Groin & Genitalia</h1><p class="text-slate-700">Assess for hernias, hydroceles. Incarcerated/strangulated hernias require emergency surgical intervention. Do not reduce if signs of strangulation are present.</p>` },
+                    { id: 'sx-10', title: 'Prostomegaly', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Prostomegaly</h1><p class="text-slate-700">Evaluate for BPH vs Prostate Ca. DRE, PSA, and renal profile. Catheterize (CBD) if patient presents in acute urinary retention.</p>` },
+                    { id: 'sx-11', title: 'Scrotal swelling', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Scrotal swelling</h1><p class="text-slate-700">Rule out testicular torsion IMMEDIATELY (surgical emergency window < 6 hours). Other causes: epididymo-orchitis, hydrocele, testicular tumor.</p>` },
+                    { id: 'sx-12', title: 'Hematuria', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Hematuria</h1><p class="text-slate-700">Painless gross hematuria is malignancy until proven otherwise. Investigate with Ultrasound KUB, CT Urography, or cystoscopy.</p>` },
+                    { id: 'sx-13', title: 'Bedsores', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Bedsores</h1><p class="text-slate-700">Prevention via frequent turning (2-hourly). Debridement of necrotic tissue and specialized wound dressings for established ulcers.</p>` },
+                    { id: 'sx-14', title: 'Anal/perianal disorders', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Anal/perianal disorders</h1><p class="text-slate-700">Hemorrhoids, perianal abscess, fissures. Abscesses require prompt incision and drainage (I&D).</p>` },
+                    { id: 'sx-15', title: 'Appendix all counts and criterias page 59-76', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Surgical</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Appendix all counts and criterias page 59-76</h1><div class="bg-white p-5 border border-blush-100 rounded-xl shadow-sm"><table class="min-w-full divide-y divide-blush-100 text-sm"><thead class="bg-blush-50"><tr><th class="px-4 py-2 text-left text-blush-700">Test</th><th class="px-4 py-2 text-left text-blush-700">Normal Range</th></tr></thead><tbody class="bg-white divide-y divide-blush-50"><tr><td class="px-4 py-2 font-bold">PT</td><td class="px-4 py-2">10-14s (INR 0.9-1.2)</td></tr><tr><td class="px-4 py-2 font-bold">PTT</td><td class="px-4 py-2">35-45s</td></tr><tr><td class="px-4 py-2 font-bold">Platelet Req</td><td class="px-4 py-2">> 50 for surgery</td></tr></tbody></table></div>` }
+                ]
+            },
+            {
+                id: 'paeds',
+                title: 'Paeds notes',
+                icon: 'ph-baby',
+                chapters: [
+                    { id: 'pd-1', title: 'Asthma', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Paediatrics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Asthma</h1><p class="text-slate-700">Assess severity. Syr prednisolone 1-2 mg/kg OD. Syr Salbutamol 0.1 mg/kg TDS. Follow acute exacerbation protocols carefully.</p>` },
+                    { id: 'pd-2', title: 'Seizures', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Paediatrics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Seizures</h1><p class="text-slate-700">Check Dextrostix immediately. Secure airway. IV Diazepam or Midazolam per weight protocols if actively seizing.</p>` },
+                    { id: 'pd-3', title: 'Acute gastroenteritis', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Paediatrics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Acute gastroenteritis</h1><p class="text-slate-700">Assess hydration status. ORS 10ml/kg for mild-moderate dehydration. IV fluids for severe dehydration. Syr Domperidone 0.25mg/kg TDS if needed.</p>` },
+                    { id: 'pd-4', title: 'Dengue Fever', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Paediatrics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Dengue Fever</h1><p class="text-slate-700">Strict fluid management according to pediatric weight-based CPG. Monitor HCT and warning signs closely.</p>` },
+                    { id: 'pd-5', title: 'Neonatal Jaundice', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Paediatrics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Neonatal Jaundice</h1><p class="text-slate-700">Plot serum bilirubin on standard nomograms (based on hours of life and gestation). Initiate phototherapy or exchange transfusion accordingly.</p>` },
+                    { id: 'pd-6', title: 'Neonatal Hypoglycemia', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Paediatrics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Neonatal Hypoglycemia</h1><p class="text-slate-700">Immediate feeding or IV D10W bolus (2ml/kg) followed by infusion, guided by protocol, to prevent neurodevelopmental injury.</p>` },
+                    { id: 'pd-7', title: 'Prem babies', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Paediatrics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Prem babies</h1><p class="text-slate-700">Requires specialized NICU care. Focus on thermoregulation, respiratory support (surfactant/CPAP), and strict infection control.</p>` },
+                    { id: 'pd-8', title: 'Page 24-44 Appendix and other criterias', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Paediatrics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Page 24-44 Appendix and other criterias</h1><div class="bg-blush-50 p-4 border border-blush-100 rounded-xl"><h4 class="font-bold text-blush-600 mb-2">Common Antimicrobial Doses</h4><ul class="text-sm space-y-1 text-slate-700"><li><strong>IV C Penicillin (Throat):</strong> 25,000 IU/kg QID</li><li><strong>IV C Penicillin (Pneumonia):</strong> 50,000 IU/kg QID</li><li><strong>IV C Penicillin (Neonates/Meningitis):</strong> 100,000 IU/kg</li><li><strong>IV Gentamycin:</strong> 5 mg/kg OD</li></ul></div>` }
+                ]
+            },
+            {
+                id: 'ortho',
+                title: 'Orthopaedic notes',
+                icon: 'ph-bone',
+                chapters: [
+                    { id: 'or-1', title: 'Compartment Syndrome', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Orthopaedics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Compartment Syndrome</h1><p class="text-slate-700">Surgical emergency. Remember the 5 Ps: Pain (out of proportion), Pallor, Paresthesia, Pulselessness, Paralysis. Requires immediate fasciotomy.</p>` },
+                    { id: 'or-2', title: 'Fat embolism', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Orthopaedics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Fat embolism</h1><p class="text-slate-700">Classic triad: Hypoxemia, neurologic abnormalities, petechial rash. Often follows long bone (femur) fractures. Supportive care.</p>` },
+                    { id: 'or-3', title: 'Clavicle Fracture', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Orthopaedics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Clavicle Fracture</h1><p class="text-slate-700">Mostly managed conservatively with arm sling/figure-of-8. Surgery indicated for open fractures, neurovascular compromise, or severe displacement/tenting.</p>` },
+                    { id: 'or-4', title: 'Ulnar/radius fracture', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Orthopaedics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Ulnar/radius fracture</h1><p class="text-slate-700">Assess for Galeazzi or Monteggia fracture-dislocations. Often require ORIF in adults for proper anatomical alignment.</p>` },
+                    { id: 'or-5', title: 'Shoulder dislocation', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Orthopaedics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Shoulder dislocation</h1><p class="text-slate-700">Anterior is most common. Check axillary nerve pre/post reduction. Prompt reduction and immobilization.</p>` },
+                    { id: 'or-6', title: 'Pelvic fractures', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Orthopaedics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Pelvic fractures</h1><p class="text-slate-700">High energy trauma. Assess hemodynamic stability. Apply pelvic binder if unstable ("open book"). Massive transfusion protocol may be needed.</p>` },
+                    { id: 'or-7', title: 'Diabetic foot ulcer', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Orthopaedics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Diabetic foot ulcer</h1><p class="text-slate-700">Multidisciplinary approach. Offloading, aggressive debridement, antibiotic therapy (cover MRSA/Anaerobes), and glycaemic control.</p>` },
+                    { id: 'or-8', title: 'Fractures', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Orthopaedics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Fractures</h1><p class="text-slate-700">Assess ATLS protocols for trauma. Immobilize joint above and below. Check distal neurovascular status.</p>` },
+                    { id: 'or-9', title: 'Page 40-60 Appendix Types of fractures and classification', content: `<div class="text-slate-400 text-sm uppercase tracking-widest mb-4">Orthopaedics</div><h1 class="font-serif text-4xl font-bold text-slate-900 mb-6">Page 40-60 Appendix Types of fractures and classification</h1><div class="bg-blush-50 p-5 border border-blush-100 rounded-xl"><table class="min-w-full divide-y divide-blush-100 text-sm"><thead class="bg-blush-100"><tr><th class="px-4 py-2 text-left text-blush-800">Pre-Op Test</th><th class="px-4 py-2 text-left text-blush-800">Normal Range</th></tr></thead><tbody class="divide-y divide-blush-100"><tr><td class="px-4 py-2 font-bold text-slate-700">CK</td><td class="px-4 py-2">&lt; 195 (M) / &lt; 170 (F)</td></tr><tr><td class="px-4 py-2 font-bold text-slate-700">CK-MB</td><td class="px-4 py-2">&lt; 25 IU/L</td></tr></tbody></table></div>` }
+                ]
+            }
+        ];
+
+        // --- INTERACTIVE JAVASCRIPT ---
+        
+        let flatChapterList = [];
+        let currentChapterIndex = -1;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            buildSidebar();
+            buildFlatList();
+            
+            // Attach Event Listeners to Nav Buttons
+            document.getElementById('btn-prev').addEventListener('click', () => navigateChapter('prev'));
+            document.getElementById('btn-next').addEventListener('click', () => navigateChapter('next'));
+            
+            // Mobile Menu Listeners
+            document.getElementById('mobile-menu-btn').addEventListener('click', toggleSidebar);
+            document.getElementById('mobile-overlay').addEventListener('click', toggleSidebar);
+        });
+
+        function buildSidebar() {
+            const sidebarContainer = document.getElementById('sidebar-menu');
+            let html = '';
+
+            libraryData.forEach((book, bIndex) => {
+                html += `
+                <div class="mb-2">
+                    <button class="accordion-toggle flex items-center justify-between w-full text-left font-bold text-slate-700 hover:text-blush-700 hover:bg-blush-50 px-4 py-3 rounded-xl transition-all group cursor-pointer" data-target="book-${bIndex}" data-icon="icon-${bIndex}">
+                        <span class="flex items-center pointer-events-none"><i class="ph-fill ${book.icon} mr-3 text-blush-300 group-hover:text-blush-500 text-xl transition-colors"></i> ${book.title}</span>
+                        <i id="icon-${bIndex}" class="ph ph-caret-right text-slate-400 transition-transform duration-200 pointer-events-none"></i>
+                    </button>
+                    <ul id="book-${bIndex}" class="mt-1 space-y-1 hidden">
+                `;
+
+                book.chapters.forEach((chapter) => {
+                    html += `
+                        <li>
+                            <button class="chapter-link w-full text-left block px-4 py-2 text-sm font-medium text-slate-600 hover:text-blush-600 hover:bg-blush-50 rounded-lg ml-6 border-l-2 border-transparent transition-colors cursor-pointer" data-book="${book.id}" data-chapter="${chapter.id}" id="link-${chapter.id}">
+                                ${chapter.title}
+                            </button>
+                        </li>
+                    `;
+                });
+
+                html += `</ul></div>`;
+            });
+
+            sidebarContainer.innerHTML = html;
+            attachDynamicListeners();
+        }
+
+        function attachDynamicListeners() {
+            // Attach accordion toggle
+            document.querySelectorAll('.accordion-toggle').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const iconId = this.getAttribute('data-icon');
+                    toggleAccordion(targetId, iconId, this);
+                });
+            });
+
+            // Attach chapter loaders
+            document.querySelectorAll('.chapter-link').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const bookId = this.getAttribute('data-book');
+                    const chapterId = this.getAttribute('data-chapter');
+                    loadChapter(bookId, chapterId);
+                });
+            });
+        }
+
+        function buildFlatList() {
+            flatChapterList = [];
+            libraryData.forEach(book => {
+                book.chapters.forEach(chapter => {
+                    flatChapterList.push({ book: book, chapter: chapter });
+                });
+            });
+        }
+
+        function loadChapter(bookId, chapterId) {
+            const book = libraryData.find(b => b.id === bookId);
+            const chapter = book.chapters.find(c => c.id === chapterId);
+            currentChapterIndex = flatChapterList.findIndex(item => item.chapter.id === chapterId);
+
+            const container = document.getElementById('reading-container');
+            container.classList.remove('fade-in');
+            void container.offsetWidth; // Force CSS animation restart
+            
+            container.innerHTML = chapter.content;
+            container.classList.add('fade-in');
+
+            // Highlight sidebar link
+            document.querySelectorAll('.chapter-link').forEach(link => {
+                link.classList.remove('text-blush-600', 'bg-blush-50/50', 'border-blush-400');
+                link.classList.add('text-slate-600', 'border-transparent');
+            });
+            
+            const activeLink = document.getElementById(`link-${chapterId}`);
+            if (activeLink) {
+                activeLink.classList.remove('text-slate-600', 'border-transparent');
+                activeLink.classList.add('text-blush-600', 'bg-blush-50/50', 'border-blush-400');
+            }
+
+            updateNavButtons();
+            
+            // Close mobile menu gracefully
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+            }
+            document.getElementById('main-content-area').scrollTop = 0;
+        }
+
+        function updateNavButtons() {
+            const navContainer = document.getElementById('chapter-navigation');
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+            const prevText = document.getElementById('btn-prev-text');
+            const nextText = document.getElementById('btn-next-text');
+
+            navContainer.classList.remove('hidden');
+            navContainer.classList.add('flex');
+
+            if (currentChapterIndex > 0) {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                prevBtn.classList.add('hover:bg-blush-50');
+                prevText.innerText = "Previous";
+            } else {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                prevBtn.classList.remove('hover:bg-blush-50');
+                prevText.innerText = "Start";
+            }
+
+            if (currentChapterIndex < flatChapterList.length - 1) {
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                nextBtn.classList.add('hover:shadow-lg', 'hover:from-blush-600');
+                nextText.innerText = "Next Chapter";
+            } else {
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                nextBtn.classList.remove('hover:shadow-lg', 'hover:from-blush-600');
+                nextText.innerText = "End";
+            }
+        }
+
+        function navigateChapter(direction) {
+            if (direction === 'next' && currentChapterIndex < flatChapterList.length - 1) {
+                const nextItem = flatChapterList[currentChapterIndex + 1];
+                loadChapter(nextItem.book.id, nextItem.chapter.id);
+            } else if (direction === 'prev' && currentChapterIndex > 0) {
+                const prevItem = flatChapterList[currentChapterIndex - 1];
+                loadChapter(prevItem.book.id, prevItem.chapter.id);
+            }
+        }
+
+        function toggleAccordion(listId, iconId, btnElement) {
+            const list = document.getElementById(listId);
+            const icon = document.getElementById(iconId);
+            
+            if (list.classList.contains('hidden')) {
+                list.classList.remove('hidden');
+                icon.classList.remove('ph-caret-right');
+                icon.classList.add('ph-caret-down');
+                btnElement.classList.add('text-blush-700', 'bg-blush-50');
+                btnElement.classList.remove('text-slate-700');
+            } else {
+                list.classList.add('hidden');
+                icon.classList.remove('ph-caret-down');
+                icon.classList.add('ph-caret-right');
+                btnElement.classList.remove('text-blush-700', 'bg-blush-50');
+                btnElement.classList.add('text-slate-700');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
+
+
