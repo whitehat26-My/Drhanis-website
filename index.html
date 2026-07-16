@@ -1,298 +1,322 @@
-import React, { useState } from 'react';
-import { 
-  Heart, 
-  Stethoscope, 
-  Syringe, 
-  Baby, 
-  Bone, 
-  Activity, 
-  Menu, 
-  X,
-  BookOpen,
-  BrainCircuit
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanis's PinkBook</title>
+    
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Load Babel so the browser can understand JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-pink-50">
+    <div id="root"></div>
 
-// --- CLINICAL DATA ---
-const bookData = {
-  internal: {
-    title: "Internal Med",
-    icon: <Activity className="w-5 h-5" />,
-    topics: [
-      { id: 'acs', title: 'ACS (Acute Coronary Syndrome)', content: '### Investigations\n- 12-lead ECG (Look for ST depression, T wave inversion, or transient ST elevation).\n- Cardiac biomarkers: Troponin T/I (serial taking 0h and 3h or 6h).\n- Bloods: FBC, Renal Profile (RP), LFT, Fasting Lipid Profile, Fasting Blood Glucose, HbA1c.\n- CXR (rule out pulmonary edema or widened mediastinum).\n- Echocardiogram (assess LV function and regional wall motion abnormalities).\n\n### Management\n- Admit to CCU/Cardiac ward.\n- Oxygen supplement if SpO2 < 90%.\n- Antiplatelets: T. Aspirin 300mg stat (crushed/chewed) followed by 75-150mg OD, AND T. Clopidogrel 300mg stat followed by 75mg OD (or Ticagrelor 180mg stat).\n- Anticoagulation: S/C Enoxaparin (LMWH) 1mg/kg BD or IV Heparin.\n- Anti-anginal: Sublingual GTN 0.5mg PRN or IV GTN infusion if persistent chest pain.\n- High dose statin: T. Atorvastatin 40-80mg ON stat.\n- Beta-blocker: T. Bisoprolol (if no contraindications like acute HF or heart block).\n- Refer Cardiology for early invasive strategy (Coronary Angiogram) based on TIMI/GRACE score.' },
-      { id: 'stemi', title: 'Acute STEMI', content: '### Investigations\n- Urgent 12-lead ECG (ST elevation >1mm in 2 contiguous limb leads, or >2mm in chest leads, or New LBBB).\n- DO NOT delay reperfusion therapy waiting for cardiac enzymes.\n- Bloods: FBC, RP, Troponin, Lipid profile, RBS.\n- Portable CXR.\n\n### Management\n- Activate STEMI pathway / Code STEMI.\n- O2 if SpO2 < 90%.\n- Analgesia: IV Morphine 2-5mg stat (with IV Maxolon) if severe pain.\n- DAPT: T. Aspirin 300mg stat + T. Clopidogrel 300-600mg stat (or Ticagrelor 180mg).\n- Reperfusion Therapy (Gold Standard = Primary PCI within 90 mins).\n- If PCI not available within 120 mins: Fibrinolysis (e.g., IV Streptokinase 1.5 million units over 1 hr, or Tenecteplase) within 30 mins of door time, UNLESS contraindicated.\n- Post-thrombolysis: S/C Enoxaparin or IV Heparin.\n- T. Atorvastatin 80mg stat.' },
-      { id: 'hf', title: 'Heart Failure', content: '### Investigations\n- Bloods: FBC, RP, LFT, TFT, NT-proBNP.\n- ECG (look for ischemia, arrhythmias like AF).\n- CXR (Cardiomegaly, upper lobe diversion, Kerley B lines, pleural effusion).\n- Transthoracic Echocardiogram (TTE) to determine LVEF (HFrEF vs HFpEF).\n\n### Management\n- Fluid restriction (e.g., 1L to 1.5L/day) and Salt restriction (<2g/day).\n- Daily weight monitoring & strict I/O chart.\n- Diuretics: PO Furosemide to relieve congestion.\n- GDMT (Guideline-Directed Medical Therapy) for HFrEF:\n  1. ACEi/ARB or ARNI (Entresto).\n  2. Beta-blocker (Bisoprolol, Carvedilol - start low, go slow).\n  3. MRA (Spironolactone).\n  4. SGLT2 inhibitor (Dapagliflozin/Empagliflozin).' },
-      { id: 'ahf', title: 'Acute Heart Failure', content: '### Investigations\n- Urgent ECG, Portable CXR.\n- ABG or VBG to assess oxygenation and acid-base status.\n- Cardiac enzymes, RP, NT-proBNP.\n\n### Management\n- Prop up patient (sit upright).\n- Oxygen therapy / Non-invasive ventilation (CPAP or BiPAP) if respiratory distress or persistent hypoxemia.\n- IV Diuretics: IV Furosemide 40-80mg stat (or 1-2x their usual daily PO dose).\n- Vasodilators: IV GTN infusion if SBP > 110 mmHg and severe pulmonary edema.\n- Insert urinary catheter for strict I/O monitoring.\n- Treat the precipitating cause (e.g., CHAMP - ACS, Hypertensive emergency, Arrhythmia, Acute Mechanical cause, Pulmonary Embolism).' },
-      { id: 'chf', title: 'Chronic Heart Failure', content: '### Investigations\n- Regular outpatient monitoring of Renal Profile (due to diuretics and RAAS inhibitors).\n- Serial Echocardiograms to monitor Ejection Fraction.\n- HbA1c and Lipid profile.\n\n### Management\n- Optimization of the "Fantastic Four" (ARNI/ACEi, Beta-blocker, MRA, SGLT2i).\n- Patient education: Fluid restriction, daily weights (seek help if weight increases >2kg in 3 days).\n- Vaccination: Influenza and Pneumococcal vaccines.\n- Consider device therapy (ICD or CRT) if LVEF persistently <35% despite optimal medical therapy.' },
-      { id: 'stroke', title: 'Stroke', content: '### Investigations\n- Urgent CT Brain plain (to rule out hemorrhage - MUST do before giving aspirin or thrombolysis).\n- Capillary blood glucose (rule out hypoglycemia mimicking stroke).\n- ECG (rule out AF).\n- Bloods: FBC, RP, LFT, Fasting Lipid, HbA1c, Coagulation profile (PT/APTT).\n- Carotid doppler and Echocardiogram (for ischemic stroke workup).\n\n### Management\n- Ischemic Stroke:\n  - If within 4.5 hours of onset and no contraindications: Activate acute stroke team for IV Thrombolysis (Alteplase).\n  - If beyond window/contraindicated: T. Aspirin 300mg stat, then 150mg OD.\n  - VTE prophylaxis.\n  - Permissive hypertension (do not lower BP acutely unless >220/120, or >185/110 if giving thrombolysis).\n- Hemorrhagic Stroke:\n  - Reverse any coagulopathy.\n  - Strict BP control (target SBP 140-160 mmHg, usually with IV Labetalol or Nicardipine).\n  - Refer Neurosurgery for consideration of EVD or clot evacuation.' },
-      { id: 'dengue', title: 'Dengue Fever', content: '### Investigations\n- Rapid test: Dengue NS1 Ag (positive in early days 1-5), Dengue IgM/IgG.\n- FBC (Serial monitoring of Hematocrit and Platelets).\n- RP, LFT (Dengue hepatitis), VBG/Lactate if in shock.\n\n### Management\n- Notify health authorities.\n- Outpatient: Adequate oral hydration, regular FBC monitoring (daily or BD).\n- Inpatient (Warning signs / Severe Dengue):\n  - Strict I/O charting.\n  - Fluid therapy: IV Normal Saline or Sterofundin as per CPG guidelines (e.g., 5-7 ml/kg/hr for 1-2 hours, then taper based on HCT and clinical status).\n  - Monitor for plasma leakage (pleural effusion, ascites) and bleeding.\n  - Transfuse platelets ONLY if active bleeding (prophylactic transfusion is not recommended).' },
-      { id: 'dm', title: 'Diabetes Mellitus', content: '### Investigations\n- Fasting Plasma Glucose (FPG), HbA1c.\n- Renal Profile, Liver Function Test, Lipid Profile.\n- Urine FEME & Urine Microalbumin/Creatinine Ratio (ACR).\n- Fundoscopy (diabetic retinopathy) and ECG.\n\n### Management\n- Lifestyle modification (diet, exercise, weight loss).\n- First line: T. Metformin (if eGFR >30).\n- Add-on therapies based on comorbidities:\n  - CVD/HF/CKD: SGLT2 inhibitors (Empagliflozin/Dapagliflozin) or GLP-1 RA.\n  - High HbA1c: Sulfonylureas (Gliclazide) or DPP-4 inhibitors.\n- Insulin therapy (Basal, Premixed, or Basal-Bolus) if HbA1c persistently high or symptomatic.' },
-      { id: 'dka', title: 'DKA', content: '### Investigations\n- Capillary blood glucose (> 11.1 mmol/L) & Capillary blood ketones (> 3.0 mmol/L) or Urine Ketones (>= 2+).\n- VBG (pH < 7.3, HCO3 < 15).\n- RP (check Potassium!), Serum Osmolality.\n- Look for precipitant: FBC, CRP, Urine FEME, CXR, ECG.\n\n### Management\n- 1. FLUIDS (Most important): IV Normal Saline (e.g., 1L over 1h, then 1L over 2h, etc. based on hydration status).\n- 2. INSULIN: IV regular insulin infusion at 0.1 units/kg/hr (Do not start if K+ < 3.3).\n- 3. POTASSIUM: Replace K+ proactively (add IV KCl to fluids) as insulin drives K+ into cells.\n- Switch to IV Dextrose 5% or 10% when blood glucose falls < 14 mmol/L to prevent hypoglycemia while clearing ketones.' },
-      { id: 'htn', title: 'Hypertensive Crisis', content: '### Investigations\n- Check for End-Organ Damage.\n- ECG (Ischemia/LVH), CXR (Pulmonary edema).\n- Urine FEME (proteinuria/hematuria).\n- Bloods: RP (AKI), FBC, Cardiac enzymes.\n- Fundoscopy (Papilledema = Malignant HTN).\n\n### Management\n- Hypertensive Emergency (with target organ damage):\n  - Admit to HDU/ICU.\n  - Lower BP by MAX 25% in the first hour, then to 160/100 over next 2-6 hours.\n  - Use IV agents (IV Labetalol, IV GTN, IV Nicardipine).\n- Hypertensive Urgency (no target organ damage):\n  - Lower BP gradually over 24-48 hours with oral medications (e.g., T. Amlodipine, T. Captopril). Do not drop BP too fast to avoid stroke.' },
-      { id: 'asthma', title: 'Bronchial Asthma', content: '### Investigations\n- Spirometry (Reversible airway obstruction: FEV1 increase by >12% and 200ml post-bronchodilator).\n- Peak Expiratory Flow Rate (PEFR).\n- Allergy testing (IgE).\n\n### Management\n- Controller: Inhaled Corticosteroid (ICS) like Budesonide or Fluticasone.\n- Reliever: Short-acting beta-agonist (SABA) like Salbutamol (PRN).\n- Step-up therapy: Add LABA (e.g., Symbicort = Budesonide + Formoterol), LTRA (Montelukast).' },
-      { id: 'aeba', title: 'AEBA', content: '### Investigations\n- Assess severity: RR, HR, SpO2, ability to complete sentences.\n- PEFR (compare to baseline).\n- ABG (if severe/life-threatening; normal or high PaCO2 is a danger sign!).\n- CXR (if suspecting pneumothorax or consolidation).\n\n### Management\n- Oxygen via face mask to maintain SpO2 > 94%.\n- Nebulized Salbutamol 5mg +/- Ipratropium Bromide 500mcg every 20 mins for 1 hour.\n- Systemic Corticosteroids: IV Hydrocortisone 200mg stat or T. Prednisolone 40-50mg stat.\n- Consider IV Magnesium Sulphate 2g over 20 mins for severe/life-threatening cases.\n- Monitor PEFR post-treatment.' },
-      { id: 'copd', title: 'COPD', content: '### Investigations\n- Spirometry (Post-bronchodilator FEV1/FVC < 0.70 confirms fixed airway obstruction).\n- CXR (Hyperinflated lungs, flattened hemidiaphragm).\n- FBC (polycythemia due to chronic hypoxia).\n\n### Management\n- Smoking cessation is mandatory.\n- Vaccinations (Influenza, Pneumococcal).\n- Bronchodilators: LAMA (Tiotropium) and LABA.\n- ICS used only in patients with frequent exacerbations or eosinophilia.\n- Long-Term Oxygen Therapy (LTOT) if chronic hypoxemia (PaO2 < 55 mmHg or < 59 mmHg with cor pulmonale).' },
-      { id: 'aecopd', title: 'AECOPD', content: '### Investigations\n- ABG (assess for type 2 respiratory failure, acidemia pH < 7.35).\n- CXR, Sputum C&S, FBC, RP.\n\n### Management\n- Controlled Oxygen: Target SpO2 88-92% (Venturi mask preferred) to prevent worsening hypercapnia.\n- Nebulized Bronchodilators (Salbutamol + Ipratropium).\n- Systemic Steroids: T. Prednisolone 30-40mg daily for 5-7 days or IV Hydrocortisone.\n- Antibiotics if all 3 cardinal symptoms present (increased dyspnea, sputum volume, sputum purulence), e.g., PO Augmentin or Azithromycin.\n- Non-Invasive Ventilation (BiPAP) if acidotic (pH < 7.35 and pCO2 > 45 mmHg).' },
-      { id: 'tb', title: 'Tuberculosis', content: '### Investigations\n- Sputum AFB smear (3 samples: spot, early morning, spot).\n- Sputum GeneXpert (MTB/RIF) for rapid diagnosis and rifampicin resistance.\n- CXR (Apical consolidation, cavitations, pleural effusion).\n- Mantoux test / IGRA (mostly for latent TB).\n\n### Management\n- Notify health authorities.\n- Airborne precautions (N95 mask for staff, isolation room).\n- Intensive Phase (2 months): AKURZ/EHRZ (EHRZ = Ethambutol, Isoniazid, Rifampicin, Pyrazinamide). Use Pyridoxine (B6) to prevent INH neuropathy.\n- Maintenance Phase (4 months): HR (Isoniazid, Rifampicin).\n- Monitor LFTs as anti-TB drugs are hepatotoxic.' },
-      { id: 'kf', title: 'Kidney Failure', content: '### Investigations\n- Renal Profile (Urea, Creatinine, Electrolytes).\n- VBG (Metabolic acidosis, Potassium).\n- Urine FEME & Urine Protein/Creatinine Ratio.\n- US KUB (Kidney size, rule out obstructive uropathy).\n\n### Management\n- Identify and treat reversible causes (pre-renal, renal, post-renal).\n- Strict fluid chart, fluid restriction.\n- Manage hyperkalemia (IV Calcium Gluconate, Insulin+Dextrose, Resonium).\n- Indications for urgent Dialysis (AEIOU):\n  - A: Acidosis (severe metabolic, pH < 7.1)\n  - E: Electrolytes (refractory Hyperkalemia)\n  - I: Intoxications (dialyzable toxins)\n  - O: Overload (refractory pulmonary edema)\n  - U: Uremia (uremic encephalopathy, pericarditis)' },
-      { id: 'int_formulas', title: 'Page 62-80 (Formulas & Criterias)', content: '### Appendix Criterias (Internal Medicine - Pg 62-80)\n\n**Corrected Sodium (in Hyperglycemia)**\n- Na_corr = Na_measured + 0.016 x (Glucose - 100)\n- Hyperglycemia draws water out of cells, diluting sodium. For every 100mg/dL rise in glucose, Na drops by 1.6.\n\n**Potassium Deficit Estimation**\n- For every 0.1 mEq/L decrease in serum K+ below 3.5, total body deficit is ~100-200 mEq.\n\n**Corrected Calcium**\n- Corrected Ca = Measured Ca + [0.02 x (40 - Serum Albumin)]\n\n**TIMI Score (STEMI & NSTEMI/UA)**\n- Age >= 65, >= 3 CAD risk factors, Known CAD (stenosis >= 50%), ASA use in past 7 days, Severe angina (>= 2 episodes in 24h), ST changes >= 0.5mm, Positive cardiac marker.\n\n**CHA2DS2-VASc Score (AF Stroke Risk)**\n- C: CHF (1)\n- H: Hypertension (1)\n- A2: Age >= 75 (2)\n- D: Diabetes (1)\n- S2: Stroke/TIA (2)\n- V: Vascular disease (1)\n- A: Age 65-74 (1)\n- Sc: Sex category (Female = 1)\n\n**HAS-BLED Score (Bleeding Risk)**\n- Hypertension, Abnormal Renal/Liver, Stroke, Bleeding hx, Labile INR, Elderly (>65), Drugs/Alcohol.\n\n**CURB-65 (Pneumonia Severity)**\n- Confusion\n- Urea > 7 mmol/L\n- Respiratory Rate >= 30\n- BP (SBP < 90 or DBP <= 60)\n- Age >= 65\n*(Score 0-1: Outpatient, 2: Ward, 3-5: ICU)*\n\n**Well\'s Criteria for PE/DVT**\n- Clinical signs of DVT, Alt diagnosis less likely than PE, HR > 100, Immobilization/Surgery, Prev DVT/PE, Hemoptysis, Malignancy.' }
-    ]
-  },
-  surgical: {
-    title: "Surgical",
-    icon: <Syringe className="w-5 h-5" />,
-    topics: [
-      { id: 'prepost', title: 'Pre op & Post op', content: '### Pre-op Investigations\n- FBC, RP, Coagulation profile (PT/APTT/INR), GXM (Group & Crossmatch).\n- ECG, CXR (especially if > 40yo or with comorbidities).\n- LFT, ABG, Echo depending on procedure and patient status.\n\n### Pre-op Management\n- Informed Consent (taken by MO/Specialist).\n- NBM (Nil By Mouth) standard: 6 hours for solids, 2 hours for clear fluids.\n- IV Drip hydration.\n- Prophylactic antibiotics at induction.\n- VTE prophylaxis scoring and compression stockings.\n\n### Post-op Management\n- Monitor Vitals closely.\n- Pain control (Analgesic ladder: Paracetamol -> NSAIDs -> Tramadol/Morphine PCA).\n- IV fluids until tolerating oral intake.\n- DVT prophylaxis (LMWH if indicated).\n- Inspect surgical wound/drains daily.\n- Early mobilization & chest physiotherapy to prevent atelectasis.' },
-      { id: 'acuteabdo', title: 'Acute abdomen', content: '### Investigations\n- Bloods: FBC (Leukocytosis), CRP, Amylase/Lipase (exclude pancreatitis), RP, VBG.\n- Erect CXR (Look for air under diaphragm = pneumoperitoneum).\n- Supine AXR (dilated bowel loops in obstruction).\n- US Abdomen/Pelvis (gallbladder, appendix, ovaries).\n- CT Abdomen with IV contrast (Definitive imaging).\n- Urine UPT (exclude ectopic pregnancy in females).\n\n### Management\n- Resuscitation: ABC, IV access, IV fluid resuscitation.\n- Keep NBM.\n- Insert Ryle\'s Tube (NGT) if vomiting or obstructed.\n- Insert CBD (urinary catheter) to monitor output.\n- IV Analgesia and IV broad-spectrum antibiotics (e.g., Cefuroxime + Metronidazole).\n- Immediate surgical referral for consideration of exploratory laparotomy.' },
-      { id: 'gastritis', title: 'Gastritis / PUD', content: '### Investigations\n- FBC (check for anemia due to bleeding).\n- Esophagogastroduodenoscopy (OGD) - Gold Standard.\n- H. pylori testing (Rapid Urease Test/CLO test during OGD, or Urea Breath Test, or Stool Antigen).\n\n### Management\n- Lifestyle modification (avoid NSAIDs, spicy food, smoking, alcohol).\n- Medications: PPI (T. Pantoprazole/Omeprazole 40mg OD for 4-8 weeks).\n- H. pylori Eradication (14-day Triple Therapy): PPI + Amoxicillin 1g BD + Clarithromycin 500mg BD.\n- If bleeding ulcer: Keep NBM, IV PPI infusion, urgent OGD for endoscopic hemostasis.' },
-      { id: 'appendicitis', title: 'Appendicitis', content: '### Investigations\n- Clinical diagnosis based on Alvarado Score.\n- FBC (Leukocytosis with left shift), CRP elevated.\n- Urine FEME (to rule out UTI, though mild pyuria can occur if appendix sits on bladder).\n- Urine UPT in females of reproductive age.\n- Ultrasound Abdomen (useful in females to rule out ovarian cyst/torsion, or in children).\n- CT Abdomen (if diagnosis unclear or suspecting perforated appendix/abscess).\n\n### Management\n- Keep NBM, start IV Fluids.\n- IV Antibiotics (Cefuroxime + Metronidazole or Amoxicillin/Clavulanate).\n- Adequate IV Analgesia.\n- Definitive: Appendicectomy (Laparoscopic preferred over Open).' },
-      { id: 'pancreatitis', title: 'Pancreatitis', content: '### Investigations\n- Serum Amylase and Lipase (diagnostic if > 3x upper limit of normal).\n- LFT (check for obstructive jaundice/gallstone etiology - high ALP/Bilirubin/ALT).\n- RP, Calcium, Fasting Lipid (Hypertriglyceridemia can cause it).\n- Ultrasound HBS (to look for gallstones).\n- CT Abdomen (only done later e.g., day 3-5 if suspecting complications like necrosis or abscess).\n\n### Management\n- Aggressive IV Fluid Resuscitation (crucial in first 24h).\n- Keep NBM initially until pain improves.\n- IV Analgesia (NSAIDs, Opioids).\n- Assess severity using modified Glasgow criteria or Ranson\'s criteria.\n- If gallstone pancreatitis: Plan for ERCP (if cholangitis/CBD obstruction) or Cholecystectomy.' },
-      { id: 'gallstone', title: 'Gallstone disease', content: '### Investigations\n- Ultrasound Hepatobiliary System (US HBS) - Gold standard for cholelithiasis, thickened GB wall, pericholecystic fluid (cholecystitis), CBD dilatation.\n- LFTs (elevated ALP, GGT, and Bilirubin indicate CBD stone/obstruction).\n- MRCP or Endoscopic Ultrasound (if CBD stone suspected).\n- FBC, CRP (elevated in acute cholecystitis).\n\n### Management\n- Biliary Colic: Analgesia, elective Laparoscopic Cholecystectomy.\n- Acute Cholecystitis: NBM, IV Antibiotics, IV Fluids, early Laparoscopic Cholecystectomy (within 72 hours) or delayed (after 6 weeks).\n- Choledocholithiasis (CBD stones): ERCP for stone clearance, followed by Cholecystectomy.' },
-      { id: 'goitre', title: 'Goitre', content: '### Investigations\n- Thyroid Function Test (TFT - TSH, fT4, fT3).\n- Ultrasound Neck (assess nodules, cystic vs solid, TIRADS classification).\n- Fine Needle Aspiration Cytology (FNAC) for dominant/suspicious nodules.\n- Indirect laryngoscopy (assess vocal cord mobility pre-op).\n\n### Management\n- Hypothyroid/Euthyroid with small goitre: Conservative monitoring.\n- Hyperthyroid: Medical management (Carbimazole/PTU, Beta-blockers) until euthyroid.\n- Indications for Surgery: Cosmetic concern, compressive symptoms (dysphagia, stridor), suspected/confirmed malignancy, toxic multinodular goitre.\n- Surgeries: Hemithyroidectomy, Subtotal, or Total Thyroidectomy.\n- Post-op monitoring: Watch for hypocalcemia (Chvostek/Trousseau signs) and recurrent laryngeal nerve palsy (hoarseness/stridor).' },
-      { id: 'pneumothorax', title: 'Pneumothorax', content: '### Investigations\n- CXR PA view in erect position (visible visceral pleural edge, absent lung markings distally).\n- ABG if respiratory distress.\n- DO NOT wait for CXR if Tension Pneumothorax is clinically suspected (tracheal deviation, distended neck veins, absent breath sounds, hypotension).\n\n### Management\n- Tension Pneumothorax: Immediate needle thoracostomy (2nd intercostal space, mid-clavicular line, or 5th ICS mid-axillary line) followed by chest tube.\n- Primary Spontaneous (small <2cm, asymptomatic): Observe and discharge with early clinic review.\n- Large or symptomatic: Needle aspiration or Chest Tube insertion (Triangle of safety: 5th ICS, anterior to mid-axillary line).\n- Persistent air leak or recurrence: Refer Thoracic for VATS pleurodesis.' },
-      { id: 'groin', title: 'Groin & Genitalia', content: '### Investigations\n- Clinical diagnosis (Examine standing and coughing, reduce the hernia).\n- Ultrasound Groin (if diagnosis is ambiguous, especially in females to rule out femoral hernia or nodes).\n\n### Management\n- Asymptomatic/Reducible: Elective Hernioplasty (Mesh repair - Lichtenstein repair).\n- Incarcerated/Strangulated (painful, irreducible, red skin, bowel obstruction signs): EMERGENCY surgery. Resuscitate, IV antibiotics, Emergency Laparotomy/Hernia repair with possible bowel resection if gangrenous.' },
-      { id: 'prostomegaly', title: 'Prostomegaly (BPH)', content: '### Investigations\n- Digital Rectal Examination (DRE) - smooth, firm, enlarged prostate with preserved median sulcus.\n- Urine FEME & Urine C&S (rule out UTI).\n- Renal Profile (rule out obstructive nephropathy).\n- Serum PSA (Prostate Specific Antigen).\n- Ultrasound KUB (check pre/post-void residual volume, hydronephrosis).\n- Uroflowmetry.\n\n### Management\n- Mild symptoms: Watchful waiting, lifestyle modification (reduce fluids at night).\n- Medical: Alpha-blockers (Tamsulosin, Alfuzosin) to relax smooth muscle, 5-alpha-reductase inhibitors (Finasteride) to shrink prostate.\n- Surgical: TURP (Transurethral Resection of Prostate) if refractory to medical therapy, recurrent UTI, recurrent hematuria, or renal impairment.' },
-      { id: 'scrotal', title: 'Scrotal swelling', content: '### Investigations\n- Examine: Can you get above it? Is it transilluminable? (Hydrocele).\n- Ultrasound Testes & Doppler (crucial to differentiate epididymo-orchitis, torsion, tumour, hydrocele, varicocele).\n- Tumour markers (AFP, beta-hCG, LDH) if suspecting testicular cancer.\n\n### Management\n- Testicular Torsion: EMERGENCY. Scrotal exploration and bilateral orchidopexy within 6 hours to save testis.\n- Epididymo-orchitis: PO Antibiotics, scrotal support, analgesia.\n- Hydrocele: Reassure if small. Lord\'s plication or Jaboulay procedure if large/symptomatic.\n- Varicocele: Embolization or varicocelectomy if affecting fertility/causing pain.' },
-      { id: 'hematuria', title: 'Hematuria', content: '### Investigations\n- Urine FEME, Urine C&S, Urine phase contrast (dysmorphic RBCs suggest glomerular cause).\n- Urine Cytology (3 consecutive days for urothelial cancer).\n- Bloods: RP, FBC, Coagulation.\n- Imaging: CT Urogram (Gold standard for renal stones and upper tract tumors) or US KUB.\n- Flexible Cystoscopy (to visualize bladder tumors).\n\n### Management\n- UTI: Antibiotics.\n- Urolithiasis (Stones): Conservative if small. ESWL, URSL, or PCNL for larger stones.\n- Malignancy: TURBT for bladder cancer, Nephrectomy for RCC.' },
-      { id: 'bedsores', title: 'Bedsores (Pressure Ulcers)', content: '### Investigations\n- Wound swab C&S if signs of clinical infection.\n- FBC, CRP, Fasting Blood Glucose, Renal profile.\n- Serum Albumin (assesses nutritional status and wound healing capability).\n- X-ray of underlying bone if osteomyelitis suspected.\n\n### Management\n- Prevention is key: Ripple mattress, 2-hourly turning chart.\n- Nutrition: High protein diet, ensure hydration.\n- Wound care: Sloughy (daily normal saline dressing + debridement agents), Infected (antimicrobial dressings, systemic antibiotics only if cellulitis/sepsis).\n- Surgical: Sharp debridement of necrotic tissue, flap coverage for severe stages.' },
-      { id: 'anal', title: 'Anal/perianal disorders', content: '### Investigations\n- Inspection, Digital Rectal Examination (DRE), Proctoscopy.\n- Colonoscopy (if patient is > 40yo with bleeding to rule out colorectal malignancy).\n\n### Management\n- Hemorrhoids:\n  - Grade 1-2: High fiber diet, oral Daflon, stool softeners, local ointments (Proctosedyl). Rubber band ligation.\n  - Grade 3-4: Hemorrhoidectomy (Open Milligan-Morgan or Stapled).\n- Anal Fissure: Stool softeners, warm sitz baths, 0.2% GTN ointment or Diltiazem cream. Lateral internal sphincterotomy if chronic/refractory.\n- Perianal Abscess: Urgent Incision and Drainage (I&D) under GA. Do NOT wait for it to "point".\n- Fistula-in-ano: Fistulotomy or seton placement.' },
-      { id: 'surg_appendix', title: 'Page 59-76 (Surg Appendix)', content: '### Appendix Criterias (Surgical - Pg 59-76)\n\n**Alvarado Score (Appendicitis)**\n- M: Migration of pain to RIF (1)\n- A: Anorexia (1)\n- N: Nausea / Vomiting (1)\n- T: Tenderness in RIF (2)\n- R: Rebound tenderness (1)\n- E: Elevated Temp > 37.3 (1)\n- L: Leukocytosis > 10,000 (2)\n- S: Shift to the left (neutrophils) (1)\n*(Score 1-4: Unlikely, 5-6: Possible/Observe, 7-10: Probable/Surgical)*\n\n**Modified Glasgow Criteria (Pancreatitis - PANCREAS)**\n(Measured within 48h. >= 3 indicates severe)\n- P: PaO2 < 60 mmHg (8 kPa)\n- A: Age > 55\n- N: Neutrophilia (WBC > 15)\n- C: Calcium < 2.0 mmol/L\n- R: Renal function (Urea > 16 mmol/L)\n- E: Enzymes (LDH > 600, AST > 200)\n- A: Albumin < 32 g/L\n- S: Sugar (Glucose > 10 mmol/L)\n\n**Ranson\'s Criteria (Pancreatitis)**\nAt Admission:\n- Age > 55, WBC > 16k, Glucose > 11, LDH > 350, AST > 250.\nAt 48 Hours:\n- Hct drop > 10%, BUN rise > 1.8, Ca < 2, PaO2 < 60, Base deficit > 4, Fluid sequestration > 6L.\n\n**Glasgow Coma Scale (GCS - 15 total)**\n- Eye (4): 4 Spontaneous, 3 To sound, 2 To pressure, 1 None.\n- Verbal (5): 5 Orientated, 4 Confused, 3 Words, 2 Sounds, 1 None.\n- Motor (6): 6 Obeys commands, 5 Localizes to pain, 4 Normal flexion, 3 Abnormal flexion (Decorticate), 2 Extension (Decerebrate), 1 None.\n\n**TNM Staging Principles**\n- T: Size/extent of primary Tumor\n- N: Degree of spread to regional lymph Nodes\n- M: Presence of distant Metastasis' }
-    ]
-  },
-  paeds: {
-    title: "Paediatrics",
-    icon: <Baby className="w-5 h-5" />,
-    topics: [
-      { id: 'p_asthma', title: 'Asthma', content: '### Investigations\n- Clinical diagnosis (history of recurrent wheeze, cough, atopy).\n- CXR (rarely needed unless suspecting pneumonia, foreign body, or pneumothorax in severe attacks).\n- PEFR in older cooperative children.\n\n### Management\n- Mild/Moderate Exacerbation:\n  - O2 to maintain SpO2 > 94%.\n  - MDI Salbutamol via Spacer (4-10 puffs depending on age) OR Nebulized Salbutamol.\n  - Oral Prednisolone (1-2 mg/kg/day for 3-5 days).\n- Severe Exacerbation:\n  - High flow O2.\n  - Nebulized Salbutamol + Ipratropium Bromide back-to-back.\n  - IV Hydrocortisone (4 mg/kg stat).\n  - Consider IV Magnesium Sulphate or IV Aminophylline in PICU.' },
-      { id: 'seizures', title: 'Seizures', content: '### Investigations\n- Dextrostix (ALWAYS check blood glucose immediately).\n- Bloods: FBC, RP, Ca, Mg, Phosphate (rule out electrolyte imbalance).\n- Lumbar puncture (if suspecting meningitis, especially if child < 18 months, or unimmunized).\n- EEG and Neuroimaging (CT/MRI) if focal, prolonged, or developmental delay.\n\n### Management\n- ABCs, put in recovery position, give O2.\n- Acute termination (if fitting > 5 mins):\n  - 1st line: IV Diazepam (0.2-0.3 mg/kg) or PR Diazepam (0.5 mg/kg) or buccal/IN Midazolam.\n  - 2nd line: IV Phenytoin loading (20 mg/kg) or IV Levetiracetam.\n  - 3rd line: IV Phenobarbitone or intubation in PICU.\n- Febrile Seizure: Treat the underlying fever (Paracetamol, tepid sponging), reassure parents.' },
-      { id: 'age', title: 'Acute gastroenteritis', content: '### Investigations\n- Stool FEME, Stool C&S, Rotavirus/Adenovirus/Norovirus antigen.\n- Bloods (RP, VBG) ONLY if moderate-severe dehydration or requiring IV fluids.\n\n### Management\n- Assess degree of dehydration (Mild <5%, Moderate 5-10%, Severe >10%).\n- Mild/Moderate: Oral Rehydration Salts (ORS) calculation based on deficit, continue breastfeeding.\n- Severe (shock, lethargic): IV Fluid bolus (Normal Saline 20 ml/kg) immediately.\n- Maintenance fluids using Holliday-Segar formula + ongoing loss replacement.\n- Zinc supplementation.\n- NO anti-diarrheals or anti-emetics routinely in young children.' },
-      { id: 'p_dengue', title: 'Dengue Fever', content: '### Investigations\n- FBC (Daily or BD monitoring of HCT and Plt).\n- Dengue NS1 Ag, IgM, IgG.\n- RP, LFT (Dengue often causes elevated transaminases in kids).\n\n### Management\n- Strict I/O monitoring (use pediatric fluid balance charts).\n- Maintenance: Normal Saline or 5% Dextrose in 0.45% Saline based on Holliday-Segar formula.\n- In Critical Phase (plasma leakage): Fluid titration based on HCT drops/rises, pulse pressure, and urine output (Target > 0.5 ml/kg/hr).\n- Paracetamol for fever (MAX 60 mg/kg/day). Avoid NSAIDs.' },
-      { id: 'nnj', title: 'Neonatal Jaundice', content: '### Investigations\n- Transcutaneous Bilirubin (TcB) or Total Serum Bilirubin (TSB).\n- Maternal and Infant Blood Group + Rhesus.\n- G6PD screening, Direct Coombs Test (DCT), Reticulocyte count.\n- FBC, Peripheral blood film.\n- Prolonged jaundice (>14 days): Check split bilirubin (direct/indirect), TFT, Urine C&S.\n\n### Management\n- Plot TSB on the appropriate CPG Nomogram based on gestation (>= 38 weeks, 35-37 weeks) and risk factors.\n- Phototherapy (single, double, or intensive) with eye shields and maximize skin exposure.\n- Ensure adequate hydration (breastfeeding or EBM).\n- Exchange Transfusion (ET) via umbilical vein catheter if TSB crosses the ET line.' },
-      { id: 'hypoglycemia', title: 'Neonatal Hypoglycemia', content: '### Investigations\n- Capillary Blood Glucose (Dextrostix) at 1, 2, 4, 6 hours of life in high-risk infants (Infant of Diabetic Mother, SGA, LGA, Premature).\n- Laboratory plasma glucose for confirmation if dextrostix < 2.6 mmol/L.\n\n### Management\n- Asymptomatic (Glucose 1.4-2.5): Early and frequent feeding (breastmilk or formula). Recheck in 1 hour.\n- Symptomatic OR Glucose < 1.4: Immediate IV 10% Dextrose bolus (2 ml/kg), followed by continuous IV infusion (starting at glucose delivery rate of 6-8 mg/kg/min).\n- Wean IV fluids slowly once glucose stabilizes > 2.6 mmol/L.' },
-      { id: 'prem', title: 'Prem babies', content: '### Investigations\n- Cranial Ultrasound (rule out Intraventricular Hemorrhage - IVH) at day 3, 7, and 1 month.\n- ROP (Retinopathy of Prematurity) screening by ophthalmology at 4 weeks of life or 31 weeks corrected age.\n- Hearing screening (OAE/AABR).\n\n### Management\n- Respiratory: CPAP, intubation + exogenous Surfactant administration (for Respiratory Distress Syndrome).\n- Thermal care: Incubator, plastic wrap at delivery.\n- Nutrition: TPN initially, progress to Trophic feeding, then full enteral feeding with EBM + Human Milk Fortifier (HMF).\n- Infection: Strict asepsis, prophylactic antibiotics if indicated.' },
-      { id: 'paeds_appendix', title: 'Page 24-44 (Paeds Appendix)', content: '### Paeds Appendix (Pg 24-44)\n\n**Holliday-Segar Formula (Maintenance Fluids per 24h)**\n- 1st 10 kg: 100 ml/kg\n- 2nd 10 kg: 50 ml/kg\n- Subsequent kg: 20 ml/kg\n*(E.g., 25kg child = 1000 + 500 + (5x20) = 1600 ml/day)*\n\n**APGAR Score (1 min & 5 min)**\n- Appearance: 0 Blue/Pale, 1 Pink body/Blue ext, 2 All pink.\n- Pulse: 0 Absent, 1 < 100, 2 > 100.\n- Grimace: 0 No response, 1 Grimace, 2 Cry/Active withdrawal.\n- Activity: 0 Limp, 1 Some flexion, 2 Active motion.\n- Respiration: 0 Absent, 1 Weak cry/hypoventilate, 2 Good, crying.\n\n**Centile Charts Principles**\n- Microcephaly: HC < 3rd centile.\n- Failure to thrive: Weight drops across 2 major centile lines.\n\n**Estimated Paediatric Weight Formula**\n- Age 1-5 yrs: (Age x 2) + 8\n- Age 6-12 yrs: (Age x 3) + 7\n\n**ET Tube Size (Uncuffed)**\n- Size (mm) = (Age/4) + 4\n- Depth (cm) = (Age/2) + 12 (or Size x 3)' }
-    ]
-  },
-  ortho: {
-    title: "Orthopaedics",
-    icon: <Bone className="w-5 h-5" />,
-    topics: [
-      { id: 'compartment', title: 'Compartment Syndrome', content: '### Investigations\n- Clinical diagnosis! Do not delay treatment for investigations.\n- Look for the 5 Ps: Pain (out of proportion, especially on passive stretch - Earliest sign), Pallor, Paresthesia, Pulselessness (late sign), Paralysis (late sign).\n- Intracompartmental pressure measurement (if unconscious or polytrauma): Pressure > 30 mmHg (or within 30 mmHg of diastolic BP) confirms diagnosis.\n\n### Management\n- SURGICAL EMERGENCY.\n- Remove all circular dressings, bandages, and cast immediately down to the skin.\n- Keep limb at heart level (do NOT elevate, as it decreases arterial perfusion).\n- Urgent surgical Fasciotomy of all compartments (e.g., 4 compartments in the leg).\n- Delayed wound closure or split skin graft (SSG) once swelling subsides.' },
-      { id: 'fat_emb', title: 'Fat embolism', content: '### Investigations\n- Clinical triad (Gurd\'s criteria): Respiratory distress, Neurological changes (confusion), Petechial rash (axilla, conjunctiva, chest).\n- Bloods: ABG (hypoxemia, hypocarbia), FBC (thrombocytopenia), FBC (anemia).\n- CXR: Bilateral fluffy infiltrates (snowstorm appearance).\n- Urine/Sputum: Sudan stain for fat globules.\n\n### Management\n- Prevention is best: Early stabilization and fixation of long bone fractures (within 24h).\n- Supportive care: High flow O2, mechanical ventilation (CPAP/PEEP) if ARDS develops.\n- Maintain hemodynamics with IV fluids.\n- Corticosteroids (controversial, but sometimes used prophylactically).' },
-      { id: 'clavicle', title: 'Clavicle Fracture', content: '### Investigations\n- X-ray Clavicle AP view.\n- Thorough neurovascular examination of the upper limb (check brachial plexus and subclavian vessels).\n- Examine for ipsilateral pneumothorax or rib fractures.\n\n### Management\n- Non-operative (Majority - middle third, non-displaced): Arm sling or figure-of-8 bandage for 4-6 weeks, followed by physiotherapy.\n- Operative (ORIF with plate and screws) indications:\n  1. Open fracture.\n  2. Skin tenting (threatened skin).\n  3. Neurovascular compromise.\n  4. Severe displacement / shortening (>2cm).\n  5. Polytrauma / Floating shoulder (ipsilateral scapula neck fracture).' },
-      { id: 'ulnar', title: 'Ulnar/radius fracture', content: '### Investigations\n- X-ray Forearm AP & Lateral views (Must include wrist and elbow joints!).\n- Rule out associated dislocations: \n  - Monteggia (Proximal ulna fracture + Radial head dislocation).\n  - Galeazzi (Distal radius fracture + DRUJ dislocation).\n\n### Management\n- Paediatric (Greenstick or simple closed): Closed Manual Alteration (CMR) under sedation + Cast immobilization (above elbow).\n- Adults: Almost always require surgery because the forearm acts as a joint (pronation/supination). ORIF with compression plates and screws for anatomical reduction.' },
-      { id: 'shoulder', title: 'Shoulder dislocation', content: '### Investigations\n- X-ray Shoulder AP and Scapular Y view or Axillary view (differentiates anterior vs posterior).\n- Anterior dislocation (>95%): Humeral head is inferior and anterior to glenoid.\n- Assess Axillary Nerve function BEFORE and AFTER reduction (Regimental badge area sensation).\n\n### Management\n- Urgent closed reduction under sedation (IV Midazolam + Fentanyl or Entonox).\n- Techniques: Kocher\'s method, Hippocratic (traction-countertraction), or Milch technique.\n- Post-reduction: Repeat X-ray to confirm reduction, place in Broad Arm Sling for 2-3 weeks, then start pendular exercises.\n- Watch out for recurrent dislocation, Bankart lesion, or Hill-Sachs lesion.' },
-      { id: 'pelvic', title: 'Pelvic fractures', content: '### Investigations\n- Primary survey: Massive hemorrhage risk! (Pelvis can hold 3-4L of blood).\n- FAST scan (to rule out intra-abdominal bleeding vs pelvic bleeding).\n- X-ray Pelvis AP.\n- CT Pelvis with contrast (if hemodynamically stable) for exact classification (e.g., Young-Burgess, Tile).\n- Assess genitourinary tract (Retrograde urethrogram if blood at meatus).\n\n### Management\n- Resuscitation (Activate Massive Transfusion Protocol if shocked).\n- Apply Pelvic Binder (over greater trochanters) or tie a bedsheet to close the pelvic ring and reduce venous bleeding.\n- Do NOT insert CBD if urethral injury suspected.\n- Hemodynamically unstable: Pre-peritoneal packing or Angio-embolization.\n- Definitive: External fixation or internal fixation (plates/screws) depending on fracture pattern.' },
-      { id: 'dfu', title: 'Diabetic foot ulcer', content: '### Investigations\n- Plain X-ray of foot (Assess for gas in soft tissue, osteomyelitis, or Charcot arthropathy).\n- Wound swab for Culture & Sensitivity.\n- Bloods: HbA1c, FBG, CRP, FBC, Renal Profile.\n- Vascular assessment: Palpate pulses, Ankle-Brachial Index (ABI), Arterial Doppler if pulses weak.\n- Neurological: Monofilament test (loss of protective sensation).\n\n### Management\n- Strict Glycemic Control.\n- Infection: IV Antibiotics (e.g., Unasyn) based on C&S.\n- Wound care: Daily normal saline dressing, sharp debridement of slough/necrotic tissue.\n- Off-loading: Total contact cast, specialized footwear (relieve pressure).\n- Surgical: Ray amputation, below-knee amputation (BKA), or above-knee (AKA) if extensive gangrene or severe ischemia not amenable to revascularization.' },
-      { id: 'fractures', title: 'Fractures (General)', content: '### Investigations\n- X-Ray Principles (The Rule of 2s):\n  - 2 Views (AP and Lateral perpendicular to each other).\n  - 2 Joints (Above and below the fracture).\n  - 2 Limbs (Compare with normal side, especially in children to compare growth plates).\n  - 2 Occasions (Pre and Post reduction).\n\n### Management (Principles)\n- 1. REDUCE: Restore anatomical alignment (closed manual reduction or open reduction in OT).\n- 2. HOLD: Immobilize the fracture (splint, plaster cast, traction, external fixator, or internal fixation like plates/IM nails).\n- 3. REHABILITATE: Physiotherapy, restore joint motion and muscle strength.' },
-      { id: 'ortho_appendix', title: 'Page 40-60 (Ortho Appendix)', content: '### Ortho Appendix & Classifications (Pg 40-60)\n\n**Salter-Harris Classification (Paediatric Physeal Fractures - SALTR)**\n- Type I: S - Straight across the physis.\n- Type II: A - Above the physis (through metaphysis). Most common.\n- Type III: L - Lower than physis (through epiphysis).\n- Type IV: T - Through everything (metaphysis, physis, epiphysis).\n- Type V: R - Rammed/Crushed physis (worst prognosis, growth arrest).\n\n**Gustilo-Anderson Classification (Open Fractures)**\n- Grade I: Wound < 1cm, clean, simple fracture.\n- Grade II: Wound 1-10cm, moderate soft tissue damage.\n- Grade III A: Wound > 10cm, high energy, adequate soft tissue coverage.\n- Grade III B: Extensive soft tissue stripping, bone exposed, requires flap coverage.\n- Grade III C: Open fracture with ARTERIAL injury requiring repair.\n*(Mx: IV Cefuroxime + Gentamicin, Tetanus toxoid, Urgent washout and debridement in OT within 6h).* \n\n**Weber Classification (Ankle Fractures - relates to syndesmosis)**\n- Weber A: Fracture below syndesmosis (stable).\n- Weber B: Fracture at level of syndesmosis (variable stability).\n- Weber C: Fracture above syndesmosis (unstable, needs surgery).' }
-    ]
-  },
-  og: {
-    title: "O & G",
-    icon: <Heart className="w-5 h-5" />,
-    topics: [
-      { id: 'anc', title: 'Antenatal Care', content: '### Investigations\n- Booking bloods (<12 weeks): FBC (anemia), Blood Group & Rhesus, VDRL, HIV, Hep B (HBsAg).\n- OGTT (Oral Glucose Tolerance Test) if high risk for Gestational Diabetes.\n- Dating Scan (Crown-Rump Length is most accurate for EDD in 1st trimester).\n- Detailed Anomaly Scan (18-22 weeks).\n- Urine FEME & proteinuria check at every visit.\n\n### Management\n- Supplements: Folic Acid 5mg (start preconception or early 1st trimester), Iron tablets (Obimin/Zincofer), Vitamin C, Calcium.\n- Monitoring: BP, weight gain, symphysio-fundal height (SFH), fetal heart rate, and fetal movements (kick chart > 28 weeks).\n- Tetanus toxoid immunization.' },
-      { id: 'intrapartum', title: 'Intrapartum Care', content: '### Investigations\n- Cardiotocography (CTG): Baseline FHR (110-160), variability (5-25 bpm), accelerations (good), decelerations (Early = head compression, Variable = cord compression, Late = placental insufficiency/hypoxia).\n- Vaginal Examination (VE): Assess cervical effacement, dilation, station of presenting part, membrane status, and liquor color.\n\n### Management\n- First Stage: Plot Partogram (cervical dilation vs time). Alert line vs Action line. Adequate analgesia (Entonox, IM Pethidine, Epidural). ARM (Artificial Rupture of Membranes) or IV Oxytocin if poor progress.\n- Second Stage (Full dilation to delivery of baby): Encourage active pushing. Episiotomy if indicated. Instrumental delivery (Vacuum/Forceps) if prolonged or fetal distress.\n- Third Stage (Delivery of placenta): Active management to prevent PPH (IM Syntometrine 1 ampoule as anterior shoulder delivers, controlled cord traction).' },
-      { id: 'pph', title: 'Postpartum Haemorrhage', content: '### Investigations\n- Diagnose visually (>500ml in vaginal delivery, >1000ml in LSCS).\n- Urgent Bloods: FBC, Coagulation profile, Renal Profile.\n- MUST DO: Group & Crossmatch 4 units of packed cells.\n\n### Management (4 Ts)\n- Call for help (Red Alert).\n- TONE (70%): Uterine atony. Rub/massage the fundus. Empty bladder. Meds: IV Oxytocin 40 units infusion, IM Syntometrine, IM/Myometrial Carboprost (Hemabate), PR Misoprostol 800mcg.\n- TRAUMA (20%): Inspect for vaginal/cervical tears and suture. Ruptured uterus requires laparotomy.\n- TISSUE (10%): Retained placenta. Manual removal of placenta (MROP) in OT.\n- THROMBIN (<1%): Correct coagulopathies (give FFP, Cryoprecipitate).\n- If medical fails: Intrauterine balloon tamponade (Bakri), B-Lynch suture, Uterine artery embolization, or Hysterectomy as life-saving last resort.' },
-      { id: 'ectopic', title: 'Ectopic Pregnancy', content: '### Investigations\n- Urine UPT (Positive).\n- Serum quantitative Beta-hCG (if >1500 mIU/mL, an intrauterine sac should be seen on TVS).\n- Transvaginal Ultrasound (TVS): Empty uterus, adnexal mass (donut sign), free fluid in Pouch of Douglas.\n- FBC, GXM (risk of massive internal bleeding).\n\n### Management\n- Hemodynamically Unstable / Ruptured Ectopic: Resuscitate, immediate Emergency Laparotomy and Salpingectomy.\n- Hemodynamically Stable, small unruptured (<35mm), low bHCG: \n  - Medical: IM Methotrexate.\n  - Surgical: Diagnostic Laparoscopy and Salpingostomy (preserve tube) or Salpingectomy.\n- Anti-D immunoglobulin if mother is Rhesus Negative.' },
-      { id: 'og_appendix', title: 'O&G Formulas & Criterias', content: '### O&G Appendix\n\n**Naegele\'s Rule (Calculating EDD)**\n- EDD = First day of LMP + 7 days - 3 months + 1 year.\n*(Assumes 28-day cycle. Must adjust if cycle is longer/shorter)*\n\n**Bishop Score (Cervical Ripeness for Induction)**\n- Dilation (cm): 0, 1-2, 3-4, 5+\n- Length/Effacement (%): 0-30, 40-50, 60-70, 80+\n- Station: -3, -2, -1, +1/2\n- Consistency: Firm, Medium, Soft\n- Position: Posterior, Mid, Anterior\n*(Score > 8 = Favorable cervix. Score < 6 = Requires cervical ripening like Prostin)*\n\n**Hypertensive Disorders in Pregnancy**\n- Gestational HTN: BP > 140/90 after 20 weeks, NO proteinuria.\n- Pre-eclampsia: BP > 140/90 after 20 weeks + Proteinuria (>0.3g/24h or urine PCR > 30).\n- Severe Pre-eclampsia: BP > 160/110, severe headache, visual changes, epigastric pain, low platelets, elevated LFTs.' }
-    ]
-  },
-  mnemonics: {
-    title: "Mnemonics",
-    icon: <BrainCircuit className="w-5 h-5" />,
-    topics: [
-      { id: 'surgical_sieve', title: 'Surgical Sieve', content: '### Surgical Sieve for Differential Diagnosis\n**VITAMIN C & D**\n- V: Vascular\n- I: Infective / Inflammatory\n- T: Traumatic\n- A: Autoimmune\n- M: Metabolic\n- I: Iatrogenic / Idiopathic\n- N: Neoplastic\n- C: Congenital\n- D: Degenerative' },
-      { id: 'cranial_nerves', title: 'Cranial Nerves', content: '### Cranial Nerves Names\n**Ooh Ooh Ooh To Touch And Feel Very Good Velvet, Such Heaven!**\n- 1. Olfactory\n- 2. Optic\n- 3. Oculomotor\n- 4. Trochlear\n- 5. Trigeminal\n- 6. Abducens\n- 7. Facial\n- 8. Vestibulocochlear\n- 9. Glossopharyngeal\n- 10. Vagus\n- 11. Spinal Accessory\n- 12. Hypoglossal\n\n### Motor vs Sensory\n**Some Say Marry Money, But My Brother Says Big Brains Matter More**\n(S = Sensory, M = Motor, B = Both)' },
-      { id: 'liver_causes', title: 'Hepatomegaly', content: '### Causes of Hepatomegaly\n**CHICAGO**\n- C: Cancer (HCC, Metastasis)\n- H: Heart failure (Right sided)\n- I: Infiltrative (Amyloidosis, Sarcoidosis)\n- C: Congestion / Cirrhosis (Early)\n- A: Abscess (Amoebic, Pyogenic)\n- G: Granulomatous (TB)\n- O: Obstruction (Biliary)' },
-      { id: 'pcos', title: 'PCOS Symptoms', content: '### PCOS Features\n**OH SHIT**\n- O: Obesity\n- H: Hirsutism\n- S: Stein-Leventhal syndrome\n- H: Hyperandrogenism\n- I: Infertility / Insulin resistance\n- T: Testosterone elevated' }
-    ]
-  }
-};
+    <script type="text/babel">
+        const { useState } = React;
 
-export default function App() {
-  const [activeCategory, setActiveCategory] = useState('internal');
-  const [activeTopicId, setActiveTopicId] = useState(bookData['internal'].topics[0].id);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+        // --- ICONS (SVG replacements for Lucide) ---
+        const IconActivity = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>;
+        const IconSyringe = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 2 22 6"></polyline><path d="M18 4l-4 4"></path><path d="M22 8l-4 4"></path><path d="M11.5 13.5l-6.5 6.5a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l6.5-6.5"></path><path d="M16 12l-8-8a2 2 0 0 0-2.828 0 2 2 0 0 0 0 2.828l8 8"></path><line x1="2" y1="22" x2="6.5" y2="17.5"></line></svg>;
+        const IconBaby = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="7" r="4"></circle><path d="M8 11.5V17c0 .6.4 1 1 1h6c.6 0 1-.4 1-1v-5.5"></path><path d="M12 11.5v9.5"></path><path d="M10 21h4"></path><path d="M5.5 14h13"></path></svg>;
+        const IconBone = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c0 .28.22.5.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"></path></svg>;
+        const IconHeart = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>;
+        const IconBrain = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0-1.32 4.24 3 3 0 0 0 .34 5.58 2.5 2.5 0 0 0 2.96 3.08 2.5 2.5 0 0 0 4.91.05L12 20V4.5Z"></path><path d="M16 8V5c0-1.1.9-2 2-2"></path><path d="M12 13h4"></path><path d="M12 18h6a2 2 0 0 1 2 2v1"></path><path d="M19 13v-3.5"></path><path d="M22 9.5H19"></path></svg>;
+        const IconBookOpen = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>;
+        const IconMenu = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>;
+        const IconX = ({className}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>;
 
-  const handleCategoryChange = (catKey) => {
-    setActiveCategory(catKey);
-    setActiveTopicId(bookData[catKey].topics[0].id);
-    setIsMobileMenuOpen(false);
-  };
+        // --- CLINICAL DATA ---
+        const bookData = {
+          internal: {
+            title: "Internal Med",
+            icon: <IconActivity className="w-5 h-5" />,
+            topics: [
+              { id: 'acs', title: 'ACS (Acute Coronary Syndrome)', content: '### Investigations\n- 12-lead ECG (Look for ST depression, T wave inversion, or transient ST elevation).\n- Cardiac biomarkers: Troponin T/I (serial taking 0h and 3h or 6h).\n- Bloods: FBC, Renal Profile (RP), LFT, Fasting Lipid Profile, Fasting Blood Glucose, HbA1c.\n- CXR (rule out pulmonary edema or widened mediastinum).\n- Echocardiogram (assess LV function and regional wall motion abnormalities).\n\n### Management\n- Admit to CCU/Cardiac ward.\n- Oxygen supplement if SpO2 < 90%.\n- Antiplatelets: T. Aspirin 300mg stat (crushed/chewed) followed by 75-150mg OD, AND T. Clopidogrel 300mg stat followed by 75mg OD (or Ticagrelor 180mg stat).\n- Anticoagulation: S/C Enoxaparin (LMWH) 1mg/kg BD or IV Heparin.\n- Anti-anginal: Sublingual GTN 0.5mg PRN or IV GTN infusion if persistent chest pain.\n- High dose statin: T. Atorvastatin 40-80mg ON stat.\n- Beta-blocker: T. Bisoprolol (if no contraindications like acute HF or heart block).\n- Refer Cardiology for early invasive strategy (Coronary Angiogram) based on TIMI/GRACE score.' },
+              { id: 'stemi', title: 'Acute STEMI', content: '### Investigations\n- Urgent 12-lead ECG (ST elevation >1mm in 2 contiguous limb leads, or >2mm in chest leads, or New LBBB).\n- DO NOT delay reperfusion therapy waiting for cardiac enzymes.\n- Bloods: FBC, RP, Troponin, Lipid profile, RBS.\n- Portable CXR.\n\n### Management\n- Activate STEMI pathway / Code STEMI.\n- O2 if SpO2 < 90%.\n- Analgesia: IV Morphine 2-5mg stat (with IV Maxolon) if severe pain.\n- DAPT: T. Aspirin 300mg stat + T. Clopidogrel 300-600mg stat (or Ticagrelor 180mg).\n- Reperfusion Therapy (Gold Standard = Primary PCI within 90 mins).\n- If PCI not available within 120 mins: Fibrinolysis (e.g., IV Streptokinase 1.5 million units over 1 hr, or Tenecteplase) within 30 mins of door time, UNLESS contraindicated.\n- Post-thrombolysis: S/C Enoxaparin or IV Heparin.\n- T. Atorvastatin 80mg stat.' },
+              { id: 'hf', title: 'Heart Failure', content: '### Investigations\n- Bloods: FBC, RP, LFT, TFT, NT-proBNP.\n- ECG (look for ischemia, arrhythmias like AF).\n- CXR (Cardiomegaly, upper lobe diversion, Kerley B lines, pleural effusion).\n- Transthoracic Echocardiogram (TTE) to determine LVEF (HFrEF vs HFpEF).\n\n### Management\n- Fluid restriction (e.g., 1L to 1.5L/day) and Salt restriction (<2g/day).\n- Daily weight monitoring & strict I/O chart.\n- Diuretics: PO Furosemide to relieve congestion.\n- GDMT (Guideline-Directed Medical Therapy) for HFrEF:\n  1. ACEi/ARB or ARNI (Entresto).\n  2. Beta-blocker (Bisoprolol, Carvedilol - start low, go slow).\n  3. MRA (Spironolactone).\n  4. SGLT2 inhibitor (Dapagliflozin/Empagliflozin).' },
+              { id: 'ahf', title: 'Acute Heart Failure', content: '### Investigations\n- Urgent ECG, Portable CXR.\n- ABG or VBG to assess oxygenation and acid-base status.\n- Cardiac enzymes, RP, NT-proBNP.\n\n### Management\n- Prop up patient (sit upright).\n- Oxygen therapy / Non-invasive ventilation (CPAP or BiPAP) if respiratory distress or persistent hypoxemia.\n- IV Diuretics: IV Furosemide 40-80mg stat (or 1-2x their usual daily PO dose).\n- Vasodilators: IV GTN infusion if SBP > 110 mmHg and severe pulmonary edema.\n- Insert urinary catheter for strict I/O monitoring.\n- Treat the precipitating cause (e.g., CHAMP - ACS, Hypertensive emergency, Arrhythmia, Acute Mechanical cause, Pulmonary Embolism).' },
+              { id: 'chf', title: 'Chronic Heart Failure', content: '### Investigations\n- Regular outpatient monitoring of Renal Profile (due to diuretics and RAAS inhibitors).\n- Serial Echocardiograms to monitor Ejection Fraction.\n- HbA1c and Lipid profile.\n\n### Management\n- Optimization of the "Fantastic Four" (ARNI/ACEi, Beta-blocker, MRA, SGLT2i).\n- Patient education: Fluid restriction, daily weights (seek help if weight increases >2kg in 3 days).\n- Vaccination: Influenza and Pneumococcal vaccines.\n- Consider device therapy (ICD or CRT) if LVEF persistently <35% despite optimal medical therapy.' },
+              { id: 'stroke', title: 'Stroke', content: '### Investigations\n- Urgent CT Brain plain (to rule out hemorrhage - MUST do before giving aspirin or thrombolysis).\n- Capillary blood glucose (rule out hypoglycemia mimicking stroke).\n- ECG (rule out AF).\n- Bloods: FBC, RP, LFT, Fasting Lipid, HbA1c, Coagulation profile (PT/APTT).\n- Carotid doppler and Echocardiogram (for ischemic stroke workup).\n\n### Management\n- Ischemic Stroke:\n  - If within 4.5 hours of onset and no contraindications: Activate acute stroke team for IV Thrombolysis (Alteplase).\n  - If beyond window/contraindicated: T. Aspirin 300mg stat, then 150mg OD.\n  - VTE prophylaxis.\n  - Permissive hypertension (do not lower BP acutely unless >220/120, or >185/110 if giving thrombolysis).\n- Hemorrhagic Stroke:\n  - Reverse any coagulopathy.\n  - Strict BP control (target SBP 140-160 mmHg, usually with IV Labetalol or Nicardipine).\n  - Refer Neurosurgery for consideration of EVD or clot evacuation.' },
+              { id: 'dengue', title: 'Dengue Fever', content: '### Investigations\n- Rapid test: Dengue NS1 Ag (positive in early days 1-5), Dengue IgM/IgG.\n- FBC (Serial monitoring of Hematocrit and Platelets).\n- RP, LFT (Dengue hepatitis), VBG/Lactate if in shock.\n\n### Management\n- Notify health authorities.\n- Outpatient: Adequate oral hydration, regular FBC monitoring (daily or BD).\n- Inpatient (Warning signs / Severe Dengue):\n  - Strict I/O charting.\n  - Fluid therapy: IV Normal Saline or Sterofundin as per CPG guidelines (e.g., 5-7 ml/kg/hr for 1-2 hours, then taper based on HCT and clinical status).\n  - Monitor for plasma leakage (pleural effusion, ascites) and bleeding.\n  - Transfuse platelets ONLY if active bleeding (prophylactic transfusion is not recommended).' },
+              { id: 'dm', title: 'Diabetes Mellitus', content: '### Investigations\n- Fasting Plasma Glucose (FPG), HbA1c.\n- Renal Profile, Liver Function Test, Lipid Profile.\n- Urine FEME & Urine Microalbumin/Creatinine Ratio (ACR).\n- Fundoscopy (diabetic retinopathy) and ECG.\n\n### Management\n- Lifestyle modification (diet, exercise, weight loss).\n- First line: T. Metformin (if eGFR >30).\n- Add-on therapies based on comorbidities:\n  - CVD/HF/CKD: SGLT2 inhibitors (Empagliflozin/Dapagliflozin) or GLP-1 RA.\n  - High HbA1c: Sulfonylureas (Gliclazide) or DPP-4 inhibitors.\n- Insulin therapy (Basal, Premixed, or Basal-Bolus) if HbA1c persistently high or symptomatic.' },
+              { id: 'dka', title: 'DKA', content: '### Investigations\n- Capillary blood glucose (> 11.1 mmol/L) & Capillary blood ketones (> 3.0 mmol/L) or Urine Ketones (>= 2+).\n- VBG (pH < 7.3, HCO3 < 15).\n- RP (check Potassium!), Serum Osmolality.\n- Look for precipitant: FBC, CRP, Urine FEME, CXR, ECG.\n\n### Management\n- 1. FLUIDS (Most important): IV Normal Saline (e.g., 1L over 1h, then 1L over 2h, etc. based on hydration status).\n- 2. INSULIN: IV regular insulin infusion at 0.1 units/kg/hr (Do not start if K+ < 3.3).\n- 3. POTASSIUM: Replace K+ proactively (add IV KCl to fluids) as insulin drives K+ into cells.\n- Switch to IV Dextrose 5% or 10% when blood glucose falls < 14 mmol/L to prevent hypoglycemia while clearing ketones.' },
+              { id: 'htn', title: 'Hypertensive Crisis', content: '### Investigations\n- Check for End-Organ Damage.\n- ECG (Ischemia/LVH), CXR (Pulmonary edema).\n- Urine FEME (proteinuria/hematuria).\n- Bloods: RP (AKI), FBC, Cardiac enzymes.\n- Fundoscopy (Papilledema = Malignant HTN).\n\n### Management\n- Hypertensive Emergency (with target organ damage):\n  - Admit to HDU/ICU.\n  - Lower BP by MAX 25% in the first hour, then to 160/100 over next 2-6 hours.\n  - Use IV agents (IV Labetalol, IV GTN, IV Nicardipine).\n- Hypertensive Urgency (no target organ damage):\n  - Lower BP gradually over 24-48 hours with oral medications (e.g., T. Amlodipine, T. Captopril). Do not drop BP too fast to avoid stroke.' },
+              { id: 'asthma', title: 'Bronchial Asthma', content: '### Investigations\n- Spirometry (Reversible airway obstruction: FEV1 increase by >12% and 200ml post-bronchodilator).\n- Peak Expiratory Flow Rate (PEFR).\n- Allergy testing (IgE).\n\n### Management\n- Controller: Inhaled Corticosteroid (ICS) like Budesonide or Fluticasone.\n- Reliever: Short-acting beta-agonist (SABA) like Salbutamol (PRN).\n- Step-up therapy: Add LABA (e.g., Symbicort = Budesonide + Formoterol), LTRA (Montelukast).' },
+              { id: 'aeba', title: 'AEBA', content: '### Investigations\n- Assess severity: RR, HR, SpO2, ability to complete sentences.\n- PEFR (compare to baseline).\n- ABG (if severe/life-threatening; normal or high PaCO2 is a danger sign!).\n- CXR (if suspecting pneumothorax or consolidation).\n\n### Management\n- Oxygen via face mask to maintain SpO2 > 94%.\n- Nebulized Salbutamol 5mg +/- Ipratropium Bromide 500mcg every 20 mins for 1 hour.\n- Systemic Corticosteroids: IV Hydrocortisone 200mg stat or T. Prednisolone 40-50mg stat.\n- Consider IV Magnesium Sulphate 2g over 20 mins for severe/life-threatening cases.\n- Monitor PEFR post-treatment.' },
+              { id: 'copd', title: 'COPD', content: '### Investigations\n- Spirometry (Post-bronchodilator FEV1/FVC < 0.70 confirms fixed airway obstruction).\n- CXR (Hyperinflated lungs, flattened hemidiaphragm).\n- FBC (polycythemia due to chronic hypoxia).\n\n### Management\n- Smoking cessation is mandatory.\n- Vaccinations (Influenza, Pneumococcal).\n- Bronchodilators: LAMA (Tiotropium) and LABA.\n- ICS used only in patients with frequent exacerbations or eosinophilia.\n- Long-Term Oxygen Therapy (LTOT) if chronic hypoxemia (PaO2 < 55 mmHg or < 59 mmHg with cor pulmonale).' },
+              { id: 'aecopd', title: 'AECOPD', content: '### Investigations\n- ABG (assess for type 2 respiratory failure, acidemia pH < 7.35).\n- CXR, Sputum C&S, FBC, RP.\n\n### Management\n- Controlled Oxygen: Target SpO2 88-92% (Venturi mask preferred) to prevent worsening hypercapnia.\n- Nebulized Bronchodilators (Salbutamol + Ipratropium).\n- Systemic Steroids: T. Prednisolone 30-40mg daily for 5-7 days or IV Hydrocortisone.\n- Antibiotics if all 3 cardinal symptoms present (increased dyspnea, sputum volume, sputum purulence), e.g., PO Augmentin or Azithromycin.\n- Non-Invasive Ventilation (BiPAP) if acidotic (pH < 7.35 and pCO2 > 45 mmHg).' },
+              { id: 'tb', title: 'Tuberculosis', content: '### Investigations\n- Sputum AFB smear (3 samples: spot, early morning, spot).\n- Sputum GeneXpert (MTB/RIF) for rapid diagnosis and rifampicin resistance.\n- CXR (Apical consolidation, cavitations, pleural effusion).\n- Mantoux test / IGRA (mostly for latent TB).\n\n### Management\n- Notify health authorities.\n- Airborne precautions (N95 mask for staff, isolation room).\n- Intensive Phase (2 months): AKURZ/EHRZ (EHRZ = Ethambutol, Isoniazid, Rifampicin, Pyrazinamide). Use Pyridoxine (B6) to prevent INH neuropathy.\n- Maintenance Phase (4 months): HR (Isoniazid, Rifampicin).\n- Monitor LFTs as anti-TB drugs are hepatotoxic.' },
+              { id: 'kf', title: 'Kidney Failure', content: '### Investigations\n- Renal Profile (Urea, Creatinine, Electrolytes).\n- VBG (Metabolic acidosis, Potassium).\n- Urine FEME & Urine Protein/Creatinine Ratio.\n- US KUB (Kidney size, rule out obstructive uropathy).\n\n### Management\n- Identify and treat reversible causes (pre-renal, renal, post-renal).\n- Strict fluid chart, fluid restriction.\n- Manage hyperkalemia (IV Calcium Gluconate, Insulin+Dextrose, Resonium).\n- Indications for urgent Dialysis (AEIOU):\n  - A: Acidosis (severe metabolic, pH < 7.1)\n  - E: Electrolytes (refractory Hyperkalemia)\n  - I: Intoxications (dialyzable toxins)\n  - O: Overload (refractory pulmonary edema)\n  - U: Uremia (uremic encephalopathy, pericarditis)' },
+              { id: 'int_formulas', title: 'Page 62-80 (Formulas)', content: '### Appendix Criterias (Internal Medicine - Pg 62-80)\n\n**Corrected Sodium (in Hyperglycemia)**\n- Na_corr = Na_measured + 0.016 x (Glucose - 100)\n- Hyperglycemia draws water out of cells, diluting sodium. For every 100mg/dL rise in glucose, Na drops by 1.6.\n\n**Potassium Deficit Estimation**\n- For every 0.1 mEq/L decrease in serum K+ below 3.5, total body deficit is ~100-200 mEq.\n\n**Corrected Calcium**\n- Corrected Ca = Measured Ca + [0.02 x (40 - Serum Albumin)]\n\n**TIMI Score (STEMI & NSTEMI/UA)**\n- Age >= 65, >= 3 CAD risk factors, Known CAD (stenosis >= 50%), ASA use in past 7 days, Severe angina (>= 2 episodes in 24h), ST changes >= 0.5mm, Positive cardiac marker.\n\n**CHA2DS2-VASc Score (AF Stroke Risk)**\n- C: CHF (1)\n- H: Hypertension (1)\n- A2: Age >= 75 (2)\n- D: Diabetes (1)\n- S2: Stroke/TIA (2)\n- V: Vascular disease (1)\n- A: Age 65-74 (1)\n- Sc: Sex category (Female = 1)\n\n**HAS-BLED Score (Bleeding Risk)**\n- Hypertension, Abnormal Renal/Liver, Stroke, Bleeding hx, Labile INR, Elderly (>65), Drugs/Alcohol.\n\n**CURB-65 (Pneumonia Severity)**\n- Confusion\n- Urea > 7 mmol/L\n- Respiratory Rate >= 30\n- BP (SBP < 90 or DBP <= 60)\n- Age >= 65\n*(Score 0-1: Outpatient, 2: Ward, 3-5: ICU)*\n\n**Well\'s Criteria for PE/DVT**\n- Clinical signs of DVT, Alt diagnosis less likely than PE, HR > 100, Immobilization/Surgery, Prev DVT/PE, Hemoptysis, Malignancy.' }
+            ]
+          },
+          surgical: {
+            title: "Surgical",
+            icon: <IconSyringe className="w-5 h-5" />,
+            topics: [
+              { id: 'prepost', title: 'Pre op & Post op', content: '### Pre-op Investigations\n- FBC, RP, Coagulation profile (PT/APTT/INR), GXM (Group & Crossmatch).\n- ECG, CXR (especially if > 40yo or with comorbidities).\n- LFT, ABG, Echo depending on procedure and patient status.\n\n### Pre-op Management\n- Informed Consent (taken by MO/Specialist).\n- NBM (Nil By Mouth) standard: 6 hours for solids, 2 hours for clear fluids.\n- IV Drip hydration.\n- Prophylactic antibiotics at induction.\n- VTE prophylaxis scoring and compression stockings.\n\n### Post-op Management\n- Monitor Vitals closely.\n- Pain control (Analgesic ladder: Paracetamol -> NSAIDs -> Tramadol/Morphine PCA).\n- IV fluids until tolerating oral intake.\n- DVT prophylaxis (LMWH if indicated).\n- Inspect surgical wound/drains daily.\n- Early mobilization & chest physiotherapy to prevent atelectasis.' },
+              { id: 'acuteabdo', title: 'Acute abdomen', content: '### Investigations\n- Bloods: FBC (Leukocytosis), CRP, Amylase/Lipase (exclude pancreatitis), RP, VBG.\n- Erect CXR (Look for air under diaphragm = pneumoperitoneum).\n- Supine AXR (dilated bowel loops in obstruction).\n- US Abdomen/Pelvis (gallbladder, appendix, ovaries).\n- CT Abdomen with IV contrast (Definitive imaging).\n- Urine UPT (exclude ectopic pregnancy in females).\n\n### Management\n- Resuscitation: ABC, IV access, IV fluid resuscitation.\n- Keep NBM.\n- Insert Ryle\'s Tube (NGT) if vomiting or obstructed.\n- Insert CBD (urinary catheter) to monitor output.\n- IV Analgesia and IV broad-spectrum antibiotics (e.g., Cefuroxime + Metronidazole).\n- Immediate surgical referral for consideration of exploratory laparotomy.' },
+              { id: 'gastritis', title: 'Gastritis / PUD', content: '### Investigations\n- FBC (check for anemia due to bleeding).\n- Esophagogastroduodenoscopy (OGD) - Gold Standard.\n- H. pylori testing (Rapid Urease Test/CLO test during OGD, or Urea Breath Test, or Stool Antigen).\n\n### Management\n- Lifestyle modification (avoid NSAIDs, spicy food, smoking, alcohol).\n- Medications: PPI (T. Pantoprazole/Omeprazole 40mg OD for 4-8 weeks).\n- H. pylori Eradication (14-day Triple Therapy): PPI + Amoxicillin 1g BD + Clarithromycin 500mg BD.\n- If bleeding ulcer: Keep NBM, IV PPI infusion, urgent OGD for endoscopic hemostasis.' },
+              { id: 'appendicitis', title: 'Appendicitis', content: '### Investigations\n- Clinical diagnosis based on Alvarado Score.\n- FBC (Leukocytosis with left shift), CRP elevated.\n- Urine FEME (to rule out UTI, though mild pyuria can occur if appendix sits on bladder).\n- Urine UPT in females of reproductive age.\n- Ultrasound Abdomen (useful in females to rule out ovarian cyst/torsion, or in children).\n- CT Abdomen (if diagnosis unclear or suspecting perforated appendix/abscess).\n\n### Management\n- Keep NBM, start IV Fluids.\n- IV Antibiotics (Cefuroxime + Metronidazole or Amoxicillin/Clavulanate).\n- Adequate IV Analgesia.\n- Definitive: Appendicectomy (Laparoscopic preferred over Open).' },
+              { id: 'pancreatitis', title: 'Pancreatitis', content: '### Investigations\n- Serum Amylase and Lipase (diagnostic if > 3x upper limit of normal).\n- LFT (check for obstructive jaundice/gallstone etiology - high ALP/Bilirubin/ALT).\n- RP, Calcium, Fasting Lipid (Hypertriglyceridemia can cause it).\n- Ultrasound HBS (to look for gallstones).\n- CT Abdomen (only done later e.g., day 3-5 if suspecting complications like necrosis or abscess).\n\n### Management\n- Aggressive IV Fluid Resuscitation (crucial in first 24h).\n- Keep NBM initially until pain improves.\n- IV Analgesia (NSAIDs, Opioids).\n- Assess severity using modified Glasgow criteria or Ranson\'s criteria.\n- If gallstone pancreatitis: Plan for ERCP (if cholangitis/CBD obstruction) or Cholecystectomy.' },
+              { id: 'gallstone', title: 'Gallstone disease', content: '### Investigations\n- Ultrasound Hepatobiliary System (US HBS) - Gold standard for cholelithiasis, thickened GB wall, pericholecystic fluid (cholecystitis), CBD dilatation.\n- LFTs (elevated ALP, GGT, and Bilirubin indicate CBD stone/obstruction).\n- MRCP or Endoscopic Ultrasound (if CBD stone suspected).\n- FBC, CRP (elevated in acute cholecystitis).\n\n### Management\n- Biliary Colic: Analgesia, elective Laparoscopic Cholecystectomy.\n- Acute Cholecystitis: NBM, IV Antibiotics, IV Fluids, early Laparoscopic Cholecystectomy (within 72 hours) or delayed (after 6 weeks).\n- Choledocholithiasis (CBD stones): ERCP for stone clearance, followed by Cholecystectomy.' },
+              { id: 'goitre', title: 'Goitre', content: '### Investigations\n- Thyroid Function Test (TFT - TSH, fT4, fT3).\n- Ultrasound Neck (assess nodules, cystic vs solid, TIRADS classification).\n- Fine Needle Aspiration Cytology (FNAC) for dominant/suspicious nodules.\n- Indirect laryngoscopy (assess vocal cord mobility pre-op).\n\n### Management\n- Hypothyroid/Euthyroid with small goitre: Conservative monitoring.\n- Hyperthyroid: Medical management (Carbimazole/PTU, Beta-blockers) until euthyroid.\n- Indications for Surgery: Cosmetic concern, compressive symptoms (dysphagia, stridor), suspected/confirmed malignancy, toxic multinodular goitre.\n- Surgeries: Hemithyroidectomy, Subtotal, or Total Thyroidectomy.\n- Post-op monitoring: Watch for hypocalcemia (Chvostek/Trousseau signs) and recurrent laryngeal nerve palsy (hoarseness/stridor).' },
+              { id: 'pneumothorax', title: 'Pneumothorax', content: '### Investigations\n- CXR PA view in erect position (visible visceral pleural edge, absent lung markings distally).\n- ABG if respiratory distress.\n- DO NOT wait for CXR if Tension Pneumothorax is clinically suspected (tracheal deviation, distended neck veins, absent breath sounds, hypotension).\n\n### Management\n- Tension Pneumothorax: Immediate needle thoracostomy (2nd intercostal space, mid-clavicular line, or 5th ICS mid-axillary line) followed by chest tube.\n- Primary Spontaneous (small <2cm, asymptomatic): Observe and discharge with early clinic review.\n- Large or symptomatic: Needle aspiration or Chest Tube insertion (Triangle of safety: 5th ICS, anterior to mid-axillary line).\n- Persistent air leak or recurrence: Refer Thoracic for VATS pleurodesis.' },
+              { id: 'groin', title: 'Groin & Genitalia', content: '### Investigations\n- Clinical diagnosis (Examine standing and coughing, reduce the hernia).\n- Ultrasound Groin (if diagnosis is ambiguous, especially in females to rule out femoral hernia or nodes).\n\n### Management\n- Asymptomatic/Reducible: Elective Hernioplasty (Mesh repair - Lichtenstein repair).\n- Incarcerated/Strangulated (painful, irreducible, red skin, bowel obstruction signs): EMERGENCY surgery. Resuscitate, IV antibiotics, Emergency Laparotomy/Hernia repair with possible bowel resection if gangrenous.' },
+              { id: 'prostomegaly', title: 'Prostomegaly (BPH)', content: '### Investigations\n- Digital Rectal Examination (DRE) - smooth, firm, enlarged prostate with preserved median sulcus.\n- Urine FEME & Urine C&S (rule out UTI).\n- Renal Profile (rule out obstructive nephropathy).\n- Serum PSA (Prostate Specific Antigen).\n- Ultrasound KUB (check pre/post-void residual volume, hydronephrosis).\n- Uroflowmetry.\n\n### Management\n- Mild symptoms: Watchful waiting, lifestyle modification (reduce fluids at night).\n- Medical: Alpha-blockers (Tamsulosin, Alfuzosin) to relax smooth muscle, 5-alpha-reductase inhibitors (Finasteride) to shrink prostate.\n- Surgical: TURP (Transurethral Resection of Prostate) if refractory to medical therapy, recurrent UTI, recurrent hematuria, or renal impairment.' },
+              { id: 'scrotal', title: 'Scrotal swelling', content: '### Investigations\n- Examine: Can you get above it? Is it transilluminable? (Hydrocele).\n- Ultrasound Testes & Doppler (crucial to differentiate epididymo-orchitis, torsion, tumour, hydrocele, varicocele).\n- Tumour markers (AFP, beta-hCG, LDH) if suspecting testicular cancer.\n\n### Management\n- Testicular Torsion: EMERGENCY. Scrotal exploration and bilateral orchidopexy within 6 hours to save testis.\n- Epididymo-orchitis: PO Antibiotics, scrotal support, analgesia.\n- Hydrocele: Reassure if small. Lord\'s plication or Jaboulay procedure if large/symptomatic.\n- Varicocele: Embolization or varicocelectomy if affecting fertility/causing pain.' },
+              { id: 'hematuria', title: 'Hematuria', content: '### Investigations\n- Urine FEME, Urine C&S, Urine phase contrast (dysmorphic RBCs suggest glomerular cause).\n- Urine Cytology (3 consecutive days for urothelial cancer).\n- Bloods: RP, FBC, Coagulation.\n- Imaging: CT Urogram (Gold standard for renal stones and upper tract tumors) or US KUB.\n- Flexible Cystoscopy (to visualize bladder tumors).\n\n### Management\n- UTI: Antibiotics.\n- Urolithiasis (Stones): Conservative if small. ESWL, URSL, or PCNL for larger stones.\n- Malignancy: TURBT for bladder cancer, Nephrectomy for RCC.' },
+              { id: 'bedsores', title: 'Bedsores', content: '### Investigations\n- Wound swab C&S if signs of clinical infection.\n- FBC, CRP, Fasting Blood Glucose, Renal profile.\n- Serum Albumin (assesses nutritional status and wound healing capability).\n- X-ray of underlying bone if osteomyelitis suspected.\n\n### Management\n- Prevention is key: Ripple mattress, 2-hourly turning chart.\n- Nutrition: High protein diet, ensure hydration.\n- Wound care: Sloughy (daily normal saline dressing + debridement agents), Infected (antimicrobial dressings, systemic antibiotics only if cellulitis/sepsis).\n- Surgical: Sharp debridement of necrotic tissue, flap coverage for severe stages.' },
+              { id: 'anal', title: 'Anal disorders', content: '### Investigations\n- Inspection, Digital Rectal Examination (DRE), Proctoscopy.\n- Colonoscopy (if patient is > 40yo with bleeding to rule out colorectal malignancy).\n\n### Management\n- Hemorrhoids:\n  - Grade 1-2: High fiber diet, oral Daflon, stool softeners, local ointments (Proctosedyl). Rubber band ligation.\n  - Grade 3-4: Hemorrhoidectomy (Open Milligan-Morgan or Stapled).\n- Anal Fissure: Stool softeners, warm sitz baths, 0.2% GTN ointment or Diltiazem cream. Lateral internal sphincterotomy if chronic/refractory.\n- Perianal Abscess: Urgent Incision and Drainage (I&D) under GA. Do NOT wait for it to "point".\n- Fistula-in-ano: Fistulotomy or seton placement.' },
+              { id: 'surg_appendix', title: 'Page 59-76 (Appendix)', content: '### Appendix Criterias (Surgical - Pg 59-76)\n\n**Alvarado Score (Appendicitis)**\n- M: Migration of pain to RIF (1)\n- A: Anorexia (1)\n- N: Nausea / Vomiting (1)\n- T: Tenderness in RIF (2)\n- R: Rebound tenderness (1)\n- E: Elevated Temp > 37.3 (1)\n- L: Leukocytosis > 10,000 (2)\n- S: Shift to the left (neutrophils) (1)\n*(Score 1-4: Unlikely, 5-6: Possible/Observe, 7-10: Probable/Surgical)*\n\n**Modified Glasgow Criteria (Pancreatitis - PANCREAS)**\n(Measured within 48h. >= 3 indicates severe)\n- P: PaO2 < 60 mmHg (8 kPa)\n- A: Age > 55\n- N: Neutrophilia (WBC > 15)\n- C: Calcium < 2.0 mmol/L\n- R: Renal function (Urea > 16 mmol/L)\n- E: Enzymes (LDH > 600, AST > 200)\n- A: Albumin < 32 g/L\n- S: Sugar (Glucose > 10 mmol/L)\n\n**Ranson\'s Criteria (Pancreatitis)**\nAt Admission:\n- Age > 55, WBC > 16k, Glucose > 11, LDH > 350, AST > 250.\nAt 48 Hours:\n- Hct drop > 10%, BUN rise > 1.8, Ca < 2, PaO2 < 60, Base deficit > 4, Fluid sequestration > 6L.\n\n**Glasgow Coma Scale (GCS - 15 total)**\n- Eye (4): 4 Spontaneous, 3 To sound, 2 To pressure, 1 None.\n- Verbal (5): 5 Orientated, 4 Confused, 3 Words, 2 Sounds, 1 None.\n- Motor (6): 6 Obeys commands, 5 Localizes to pain, 4 Normal flexion, 3 Abnormal flexion (Decorticate), 2 Extension (Decerebrate), 1 None.\n\n**TNM Staging Principles**\n- T: Size/extent of primary Tumor\n- N: Degree of spread to regional lymph Nodes\n- M: Presence of distant Metastasis' }
+            ]
+          },
+          paeds: {
+            title: "Paediatrics",
+            icon: <IconBaby className="w-5 h-5" />,
+            topics: [
+              { id: 'p_asthma', title: 'Asthma', content: '### Investigations\n- Clinical diagnosis (history of recurrent wheeze, cough, atopy).\n- CXR (rarely needed unless suspecting pneumonia, foreign body, or pneumothorax in severe attacks).\n- PEFR in older cooperative children.\n\n### Management\n- Mild/Moderate Exacerbation:\n  - O2 to maintain SpO2 > 94%.\n  - MDI Salbutamol via Spacer (4-10 puffs depending on age) OR Nebulized Salbutamol.\n  - Oral Prednisolone (1-2 mg/kg/day for 3-5 days).\n- Severe Exacerbation:\n  - High flow O2.\n  - Nebulized Salbutamol + Ipratropium Bromide back-to-back.\n  - IV Hydrocortisone (4 mg/kg stat).\n  - Consider IV Magnesium Sulphate or IV Aminophylline in PICU.' },
+              { id: 'seizures', title: 'Seizures', content: '### Investigations\n- Dextrostix (ALWAYS check blood glucose immediately).\n- Bloods: FBC, RP, Ca, Mg, Phosphate (rule out electrolyte imbalance).\n- Lumbar puncture (if suspecting meningitis, especially if child < 18 months, or unimmunized).\n- EEG and Neuroimaging (CT/MRI) if focal, prolonged, or developmental delay.\n\n### Management\n- ABCs, put in recovery position, give O2.\n- Acute termination (if fitting > 5 mins):\n  - 1st line: IV Diazepam (0.2-0.3 mg/kg) or PR Diazepam (0.5 mg/kg) or buccal/IN Midazolam.\n  - 2nd line: IV Phenytoin loading (20 mg/kg) or IV Levetiracetam.\n  - 3rd line: IV Phenobarbitone or intubation in PICU.\n- Febrile Seizure: Treat the underlying fever (Paracetamol, tepid sponging), reassure parents.' },
+              { id: 'age', title: 'Acute gastroenteritis', content: '### Investigations\n- Stool FEME, Stool C&S, Rotavirus/Adenovirus/Norovirus antigen.\n- Bloods (RP, VBG) ONLY if moderate-severe dehydration or requiring IV fluids.\n\n### Management\n- Assess degree of dehydration (Mild <5%, Moderate 5-10%, Severe >10%).\n- Mild/Moderate: Oral Rehydration Salts (ORS) calculation based on deficit, continue breastfeeding.\n- Severe (shock, lethargic): IV Fluid bolus (Normal Saline 20 ml/kg) immediately.\n- Maintenance fluids using Holliday-Segar formula + ongoing loss replacement.\n- Zinc supplementation.\n- NO anti-diarrheals or anti-emetics routinely in young children.' },
+              { id: 'p_dengue', title: 'Dengue Fever', content: '### Investigations\n- FBC (Daily or BD monitoring of HCT and Plt).\n- Dengue NS1 Ag, IgM, IgG.\n- RP, LFT (Dengue often causes elevated transaminases in kids).\n\n### Management\n- Strict I/O monitoring (use pediatric fluid balance charts).\n- Maintenance: Normal Saline or 5% Dextrose in 0.45% Saline based on Holliday-Segar formula.\n- In Critical Phase (plasma leakage): Fluid titration based on HCT drops/rises, pulse pressure, and urine output (Target > 0.5 ml/kg/hr).\n- Paracetamol for fever (MAX 60 mg/kg/day). Avoid NSAIDs.' },
+              { id: 'nnj', title: 'Neonatal Jaundice', content: '### Investigations\n- Transcutaneous Bilirubin (TcB) or Total Serum Bilirubin (TSB).\n- Maternal and Infant Blood Group + Rhesus.\n- G6PD screening, Direct Coombs Test (DCT), Reticulocyte count.\n- FBC, Peripheral blood film.\n- Prolonged jaundice (>14 days): Check split bilirubin (direct/indirect), TFT, Urine C&S.\n\n### Management\n- Plot TSB on the appropriate CPG Nomogram based on gestation (>= 38 weeks, 35-37 weeks) and risk factors.\n- Phototherapy (single, double, or intensive) with eye shields and maximize skin exposure.\n- Ensure adequate hydration (breastfeeding or EBM).\n- Exchange Transfusion (ET) via umbilical vein catheter if TSB crosses the ET line.' },
+              { id: 'hypoglycemia', title: 'Neonatal Hypoglycemia', content: '### Investigations\n- Capillary Blood Glucose (Dextrostix) at 1, 2, 4, 6 hours of life in high-risk infants (Infant of Diabetic Mother, SGA, LGA, Premature).\n- Laboratory plasma glucose for confirmation if dextrostix < 2.6 mmol/L.\n\n### Management\n- Asymptomatic (Glucose 1.4-2.5): Early and frequent feeding (breastmilk or formula). Recheck in 1 hour.\n- Symptomatic OR Glucose < 1.4: Immediate IV 10% Dextrose bolus (2 ml/kg), followed by continuous IV infusion (starting at glucose delivery rate of 6-8 mg/kg/min).\n- Wean IV fluids slowly once glucose stabilizes > 2.6 mmol/L.' },
+              { id: 'prem', title: 'Prem babies', content: '### Investigations\n- Cranial Ultrasound (rule out Intraventricular Hemorrhage - IVH) at day 3, 7, and 1 month.\n- ROP (Retinopathy of Prematurity) screening by ophthalmology at 4 weeks of life or 31 weeks corrected age.\n- Hearing screening (OAE/AABR).\n\n### Management\n- Respiratory: CPAP, intubation + exogenous Surfactant administration (for Respiratory Distress Syndrome).\n- Thermal care: Incubator, plastic wrap at delivery.\n- Nutrition: TPN initially, progress to Trophic feeding, then full enteral feeding with EBM + Human Milk Fortifier (HMF).\n- Infection: Strict asepsis, prophylactic antibiotics if indicated.' },
+              { id: 'paeds_appendix', title: 'Page 24-44 (Appendix)', content: '### Paeds Appendix (Pg 24-44)\n\n**Holliday-Segar Formula (Maintenance Fluids per 24h)**\n- 1st 10 kg: 100 ml/kg\n- 2nd 10 kg: 50 ml/kg\n- Subsequent kg: 20 ml/kg\n*(E.g., 25kg child = 1000 + 500 + (5x20) = 1600 ml/day)*\n\n**APGAR Score (1 min & 5 min)**\n- Appearance: 0 Blue/Pale, 1 Pink body/Blue ext, 2 All pink.\n- Pulse: 0 Absent, 1 < 100, 2 > 100.\n- Grimace: 0 No response, 1 Grimace, 2 Cry/Active withdrawal.\n- Activity: 0 Limp, 1 Some flexion, 2 Active motion.\n- Respiration: 0 Absent, 1 Weak cry/hypoventilate, 2 Good, crying.\n\n**Centile Charts Principles**\n- Microcephaly: HC < 3rd centile.\n- Failure to thrive: Weight drops across 2 major centile lines.\n\n**Estimated Paediatric Weight Formula**\n- Age 1-5 yrs: (Age x 2) + 8\n- Age 6-12 yrs: (Age x 3) + 7\n\n**ET Tube Size (Uncuffed)**\n- Size (mm) = (Age/4) + 4\n- Depth (cm) = (Age/2) + 12 (or Size x 3)' }
+            ]
+          },
+          ortho: {
+            title: "Orthopaedics",
+            icon: <IconBone className="w-5 h-5" />,
+            topics: [
+              { id: 'compartment', title: 'Compartment Syndrome', content: '### Investigations\n- Clinical diagnosis! Do not delay treatment for investigations.\n- Look for the 5 Ps: Pain (out of proportion, especially on passive stretch - Earliest sign), Pallor, Paresthesia, Pulselessness (late sign), Paralysis (late sign).\n- Intracompartmental pressure measurement (if unconscious or polytrauma): Pressure > 30 mmHg (or within 30 mmHg of diastolic BP) confirms diagnosis.\n\n### Management\n- SURGICAL EMERGENCY.\n- Remove all circular dressings, bandages, and cast immediately down to the skin.\n- Keep limb at heart level (do NOT elevate, as it decreases arterial perfusion).\n- Urgent surgical Fasciotomy of all compartments (e.g., 4 compartments in the leg).\n- Delayed wound closure or split skin graft (SSG) once swelling subsides.' },
+              { id: 'fat_emb', title: 'Fat embolism', content: '### Investigations\n- Clinical triad (Gurd\'s criteria): Respiratory distress, Neurological changes (confusion), Petechial rash (axilla, conjunctiva, chest).\n- Bloods: ABG (hypoxemia, hypocarbia), FBC (thrombocytopenia), FBC (anemia).\n- CXR: Bilateral fluffy infiltrates (snowstorm appearance).\n- Urine/Sputum: Sudan stain for fat globules.\n\n### Management\n- Prevention is best: Early stabilization and fixation of long bone fractures (within 24h).\n- Supportive care: High flow O2, mechanical ventilation (CPAP/PEEP) if ARDS develops.\n- Maintain hemodynamics with IV fluids.\n- Corticosteroids (controversial, but sometimes used prophylactically).' },
+              { id: 'clavicle', title: 'Clavicle Fracture', content: '### Investigations\n- X-ray Clavicle AP view.\n- Thorough neurovascular examination of the upper limb (check brachial plexus and subclavian vessels).\n- Examine for ipsilateral pneumothorax or rib fractures.\n\n### Management\n- Non-operative (Majority - middle third, non-displaced): Arm sling or figure-of-8 bandage for 4-6 weeks, followed by physiotherapy.\n- Operative (ORIF with plate and screws) indications:\n  1. Open fracture.\n  2. Skin tenting (threatened skin).\n  3. Neurovascular compromise.\n  4. Severe displacement / shortening (>2cm).\n  5. Polytrauma / Floating shoulder (ipsilateral scapula neck fracture).' },
+              { id: 'ulnar', title: 'Ulnar/radius fracture', content: '### Investigations\n- X-ray Forearm AP & Lateral views (Must include wrist and elbow joints!).\n- Rule out associated dislocations: \n  - Monteggia (Proximal ulna fracture + Radial head dislocation).\n  - Galeazzi (Distal radius fracture + DRUJ dislocation).\n\n### Management\n- Paediatric (Greenstick or simple closed): Closed Manual Alteration (CMR) under sedation + Cast immobilization (above elbow).\n- Adults: Almost always require surgery because the forearm acts as a joint (pronation/supination). ORIF with compression plates and screws for anatomical reduction.' },
+              { id: 'shoulder', title: 'Shoulder dislocation', content: '### Investigations\n- X-ray Shoulder AP and Scapular Y view or Axillary view (differentiates anterior vs posterior).\n- Anterior dislocation (>95%): Humeral head is inferior and anterior to glenoid.\n- Assess Axillary Nerve function BEFORE and AFTER reduction (Regimental badge area sensation).\n\n### Management\n- Urgent closed reduction under sedation (IV Midazolam + Fentanyl or Entonox).\n- Techniques: Kocher\'s method, Hippocratic (traction-countertraction), or Milch technique.\n- Post-reduction: Repeat X-ray to confirm reduction, place in Broad Arm Sling for 2-3 weeks, then start pendular exercises.\n- Watch out for recurrent dislocation, Bankart lesion, or Hill-Sachs lesion.' },
+              { id: 'pelvic', title: 'Pelvic fractures', content: '### Investigations\n- Primary survey: Massive hemorrhage risk! (Pelvis can hold 3-4L of blood).\n- FAST scan (to rule out intra-abdominal bleeding vs pelvic bleeding).\n- X-ray Pelvis AP.\n- CT Pelvis with contrast (if hemodynamically stable) for exact classification (e.g., Young-Burgess, Tile).\n- Assess genitourinary tract (Retrograde urethrogram if blood at meatus).\n\n### Management\n- Resuscitation (Activate Massive Transfusion Protocol if shocked).\n- Apply Pelvic Binder (over greater trochanters) or tie a bedsheet to close the pelvic ring and reduce venous bleeding.\n- Do NOT insert CBD if urethral injury suspected.\n- Hemodynamically unstable: Pre-peritoneal packing or Angio-embolization.\n- Definitive: External fixation or internal fixation (plates/screws) depending on fracture pattern.' },
+              { id: 'dfu', title: 'Diabetic foot ulcer', content: '### Investigations\n- Plain X-ray of foot (Assess for gas in soft tissue, osteomyelitis, or Charcot arthropathy).\n- Wound swab for Culture & Sensitivity.\n- Bloods: HbA1c, FBG, CRP, FBC, Renal Profile.\n- Vascular assessment: Palpate pulses, Ankle-Brachial Index (ABI), Arterial Doppler if pulses weak.\n- Neurological: Monofilament test (loss of protective sensation).\n\n### Management\n- Strict Glycemic Control.\n- Infection: IV Antibiotics (e.g., Unasyn) based on C&S.\n- Wound care: Daily normal saline dressing, sharp debridement of slough/necrotic tissue.\n- Off-loading: Total contact cast, specialized footwear (relieve pressure).\n- Surgical: Ray amputation, below-knee amputation (BKA), or above-knee (AKA) if extensive gangrene or severe ischemia not amenable to revascularization.' },
+              { id: 'fractures', title: 'Fractures (General)', content: '### Investigations\n- X-Ray Principles (The Rule of 2s):\n  - 2 Views (AP and Lateral perpendicular to each other).\n  - 2 Joints (Above and below the fracture).\n  - 2 Limbs (Compare with normal side, especially in children to compare growth plates).\n  - 2 Occasions (Pre and Post reduction).\n\n### Management (Principles)\n- 1. REDUCE: Restore anatomical alignment (closed manual reduction or open reduction in OT).\n- 2. HOLD: Immobilize the fracture (splint, plaster cast, traction, external fixator, or internal fixation like plates/IM nails).\n- 3. REHABILITATE: Physiotherapy, restore joint motion and muscle strength.' },
+              { id: 'ortho_appendix', title: 'Page 40-60 (Appendix)', content: '### Ortho Appendix & Classifications (Pg 40-60)\n\n**Salter-Harris Classification (Paediatric Physeal Fractures - SALTR)**\n- Type I: S - Straight across the physis.\n- Type II: A - Above the physis (through metaphysis). Most common.\n- Type III: L - Lower than physis (through epiphysis).\n- Type IV: T - Through everything (metaphysis, physis, epiphysis).\n- Type V: R - Rammed/Crushed physis (worst prognosis, growth arrest).\n\n**Gustilo-Anderson Classification (Open Fractures)**\n- Grade I: Wound < 1cm, clean, simple fracture.\n- Grade II: Wound 1-10cm, moderate soft tissue damage.\n- Grade III A: Wound > 10cm, high energy, adequate soft tissue coverage.\n- Grade III B: Extensive soft tissue stripping, bone exposed, requires flap coverage.\n- Grade III C: Open fracture with ARTERIAL injury requiring repair.\n*(Mx: IV Cefuroxime + Gentamicin, Tetanus toxoid, Urgent washout and debridement in OT within 6h).* \n\n**Weber Classification (Ankle Fractures - relates to syndesmosis)**\n- Weber A: Fracture below syndesmosis (stable).\n- Weber B: Fracture at level of syndesmosis (variable stability).\n- Weber C: Fracture above syndesmosis (unstable, needs surgery).' }
+            ]
+          },
+          og: {
+            title: "O & G",
+            icon: <IconHeart className="w-5 h-5" />,
+            topics: [
+              { id: 'anc', title: 'Antenatal Care', content: '### Investigations\n- Booking bloods (<12 weeks): FBC (anemia), Blood Group & Rhesus, VDRL, HIV, Hep B (HBsAg).\n- OGTT (Oral Glucose Tolerance Test) if high risk for Gestational Diabetes.\n- Dating Scan (Crown-Rump Length is most accurate for EDD in 1st trimester).\n- Detailed Anomaly Scan (18-22 weeks).\n- Urine FEME & proteinuria check at every visit.\n\n### Management\n- Supplements: Folic Acid 5mg (start preconception or early 1st trimester), Iron tablets (Obimin/Zincofer), Vitamin C, Calcium.\n- Monitoring: BP, weight gain, symphysio-fundal height (SFH), fetal heart rate, and fetal movements (kick chart > 28 weeks).\n- Tetanus toxoid immunization.' },
+              { id: 'intrapartum', title: 'Intrapartum Care', content: '### Investigations\n- Cardiotocography (CTG): Baseline FHR (110-160), variability (5-25 bpm), accelerations (good), decelerations (Early = head compression, Variable = cord compression, Late = placental insufficiency/hypoxia).\n- Vaginal Examination (VE): Assess cervical effacement, dilation, station of presenting part, membrane status, and liquor color.\n\n### Management\n- First Stage: Plot Partogram (cervical dilation vs time). Alert line vs Action line. Adequate analgesia (Entonox, IM Pethidine, Epidural). ARM (Artificial Rupture of Membranes) or IV Oxytocin if poor progress.\n- Second Stage (Full dilation to delivery of baby): Encourage active pushing. Episiotomy if indicated. Instrumental delivery (Vacuum/Forceps) if prolonged or fetal distress.\n- Third Stage (Delivery of placenta): Active management to prevent PPH (IM Syntometrine 1 ampoule as anterior shoulder delivers, controlled cord traction).' },
+              { id: 'pph', title: 'Postpartum Haemorrhage', content: '### Investigations\n- Diagnose visually (>500ml in vaginal delivery, >1000ml in LSCS).\n- Urgent Bloods: FBC, Coagulation profile, Renal Profile.\n- MUST DO: Group & Crossmatch 4 units of packed cells.\n\n### Management (4 Ts)\n- Call for help (Red Alert).\n- TONE (70%): Uterine atony. Rub/massage the fundus. Empty bladder. Meds: IV Oxytocin 40 units infusion, IM Syntometrine, IM/Myometrial Carboprost (Hemabate), PR Misoprostol 800mcg.\n- TRAUMA (20%): Inspect for vaginal/cervical tears and suture. Ruptured uterus requires laparotomy.\n- TISSUE (10%): Retained placenta. Manual removal of placenta (MROP) in OT.\n- THROMBIN (<1%): Correct coagulopathies (give FFP, Cryoprecipitate).\n- If medical fails: Intrauterine balloon tamponade (Bakri), B-Lynch suture, Uterine artery embolization, or Hysterectomy as life-saving last resort.' },
+              { id: 'ectopic', title: 'Ectopic Pregnancy', content: '### Investigations\n- Urine UPT (Positive).\n- Serum quantitative Beta-hCG (if >1500 mIU/mL, an intrauterine sac should be seen on TVS).\n- Transvaginal Ultrasound (TVS): Empty uterus, adnexal mass (donut sign), free fluid in Pouch of Douglas.\n- FBC, GXM (risk of massive internal bleeding).\n\n### Management\n- Hemodynamically Unstable / Ruptured Ectopic: Resuscitate, immediate Emergency Laparotomy and Salpingectomy.\n- Hemodynamically Stable, small unruptured (<35mm), low bHCG: \n  - Medical: IM Methotrexate.\n  - Surgical: Diagnostic Laparoscopy and Salpingostomy (preserve tube) or Salpingectomy.\n- Anti-D immunoglobulin if mother is Rhesus Negative.' },
+              { id: 'og_appendix', title: 'O&G Formulas', content: '### O&G Appendix\n\n**Naegele\'s Rule (Calculating EDD)**\n- EDD = First day of LMP + 7 days - 3 months + 1 year.\n*(Assumes 28-day cycle. Must adjust if cycle is longer/shorter)*\n\n**Bishop Score (Cervical Ripeness for Induction)**\n- Dilation (cm): 0, 1-2, 3-4, 5+\n- Length/Effacement (%): 0-30, 40-50, 60-70, 80+\n- Station: -3, -2, -1, +1/2\n- Consistency: Firm, Medium, Soft\n- Position: Posterior, Mid, Anterior\n*(Score > 8 = Favorable cervix. Score < 6 = Requires cervical ripening like Prostin)*\n\n**Hypertensive Disorders in Pregnancy**\n- Gestational HTN: BP > 140/90 after 20 weeks, NO proteinuria.\n- Pre-eclampsia: BP > 140/90 after 20 weeks + Proteinuria (>0.3g/24h or urine PCR > 30).\n- Severe Pre-eclampsia: BP > 160/110, severe headache, visual changes, epigastric pain, low platelets, elevated LFTs.' }
+            ]
+          },
+          mnemonics: {
+            title: "Mnemonics",
+            icon: <IconBrain className="w-5 h-5" />,
+            topics: [
+              { id: 'surgical_sieve', title: 'Surgical Sieve', content: '### Surgical Sieve for Differential Diagnosis\n**VITAMIN C & D**\n- V: Vascular\n- I: Infective / Inflammatory\n- T: Traumatic\n- A: Autoimmune\n- M: Metabolic\n- I: Iatrogenic / Idiopathic\n- N: Neoplastic\n- C: Congenital\n- D: Degenerative' },
+              { id: 'cranial_nerves', title: 'Cranial Nerves', content: '### Cranial Nerves Names\n**Ooh Ooh Ooh To Touch And Feel Very Good Velvet, Such Heaven!**\n- 1. Olfactory\n- 2. Optic\n- 3. Oculomotor\n- 4. Trochlear\n- 5. Trigeminal\n- 6. Abducens\n- 7. Facial\n- 8. Vestibulocochlear\n- 9. Glossopharyngeal\n- 10. Vagus\n- 11. Spinal Accessory\n- 12. Hypoglossal\n\n### Motor vs Sensory\n**Some Say Marry Money, But My Brother Says Big Brains Matter More**\n(S = Sensory, M = Motor, B = Both)' },
+              { id: 'liver_causes', title: 'Hepatomegaly', content: '### Causes of Hepatomegaly\n**CHICAGO**\n- C: Cancer (HCC, Metastasis)\n- H: Heart failure (Right sided)\n- I: Infiltrative (Amyloidosis, Sarcoidosis)\n- C: Congestion / Cirrhosis (Early)\n- A: Abscess (Amoebic, Pyogenic)\n- G: Granulomatous (TB)\n- O: Obstruction (Biliary)' },
+              { id: 'pcos', title: 'PCOS Symptoms', content: '### PCOS Features\n**OH SHIT**\n- O: Obesity\n- H: Hirsutism\n- S: Stein-Leventhal syndrome\n- H: Hyperandrogenism\n- I: Infertility / Insulin resistance\n- T: Testosterone elevated' }
+            ]
+          }
+        };
 
-  const currentCategoryData = bookData[activeCategory];
-  const activeTopic = currentCategoryData.topics.find(t => t.id === activeTopicId);
+        function App() {
+          const [activeCategory, setActiveCategory] = useState('internal');
+          const [activeTopicId, setActiveTopicId] = useState(bookData['internal'].topics[0].id);
+          const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  return (
-    <div className="min-h-screen flex flex-col font-sans bg-pink-50 text-slate-800 overflow-x-hidden">
-      
-      {/* HEADER */}
-      <header className="bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-md sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center overflow-hidden">
-          <div className="flex items-center space-x-2 truncate">
-            <BookOpen className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0 text-pink-100" />
-            <h1 className="text-xl md:text-2xl font-extrabold tracking-tight truncate">Hanis's PinkBook</h1>
-          </div>
-          
-          {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden p-2 bg-pink-600 rounded-lg hover:bg-pink-700 transition flex-shrink-0"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
+          const handleCategoryChange = (catKey) => {
+            setActiveCategory(catKey);
+            setActiveTopicId(bookData[catKey].topics[0].id);
+            setIsMobileMenuOpen(false);
+          };
 
-        {/* Top Navigation (Desktop) */}
-        <div className="hidden md:flex flex-wrap bg-pink-600 px-4">
-          <div className="max-w-7xl mx-auto flex space-x-1 overflow-x-auto">
-            {Object.entries(bookData).map(([key, data]) => (
-              <button
-                key={key}
-                onClick={() => handleCategoryChange(key)}
-                className={`flex items-center space-x-2 px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
-                  activeCategory === key 
-                    ? 'bg-pink-50 text-pink-700 rounded-t-lg border-b-2 border-pink-500 shadow-sm' 
-                    : 'text-pink-100 hover:bg-pink-500 hover:text-white'
-                }`}
-              >
-                {data.icon}
-                <span>{data.title}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </header>
+          const currentCategoryData = bookData[activeCategory];
+          const activeTopic = currentCategoryData.topics.find(t => t.id === activeTopicId);
 
-      {/* Mobile Navigation Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-pink-600 shadow-inner z-10 w-full">
-          {Object.entries(bookData).map(([key, data]) => (
-            <button
-              key={key}
-              onClick={() => handleCategoryChange(key)}
-              className={`w-full flex items-center space-x-3 px-6 py-4 text-left font-medium border-b border-pink-500 ${
-                activeCategory === key ? 'bg-pink-700 text-white' : 'text-pink-100'
-              }`}
-            >
-              {data.icon}
-              <span>{data.title}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* MAIN CONTENT AREA */}
-      <main className="flex-grow max-w-7xl mx-auto w-full flex flex-col md:flex-row py-4 px-2 md:py-6 md:px-4 gap-4 md:gap-6 overflow-hidden">
-        
-        {/* Sidebar Topics */}
-        <aside className="w-full md:w-1/3 lg:w-1/4 flex flex-col space-y-2 flex-shrink-0">
-          <h2 className="text-base md:text-lg font-bold text-pink-700 uppercase tracking-wider mb-1 flex items-center border-b border-pink-200 pb-2 px-2">
-            {currentCategoryData.icon}
-            <span className="ml-2 truncate">{currentCategoryData.title}</span>
-          </h2>
-          
-          <div className="bg-white rounded-xl shadow-sm border border-pink-100 overflow-hidden flex flex-col">
-            <div className="max-h-[50vh] md:max-h-[70vh] overflow-y-auto p-2 space-y-1">
-              {currentCategoryData.topics.map((topic) => (
-                <button
-                  key={topic.id}
-                  onClick={() => {
-                    setActiveTopicId(topic.id);
-                    if(window.innerWidth < 768) {
-                      setTimeout(() => window.scrollTo({ top: document.getElementById('content-area').offsetTop - 20, behavior: 'smooth' }), 100);
-                    }
-                  }}
-                  className={`w-full text-left px-3 py-3 md:px-4 rounded-lg text-sm transition-all duration-200 ${
-                    activeTopicId === topic.id 
-                      ? 'bg-pink-100 text-pink-800 font-bold shadow-inner border-l-4 border-pink-500' 
-                      : 'text-slate-600 hover:bg-pink-50 hover:text-pink-600'
-                  }`}
-                >
-                  {topic.title}
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Note Content Display */}
-        <section id="content-area" className="w-full max-w-full md:w-2/3 lg:w-3/4 flex flex-col min-w-0 flex-shrink">
-          <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-pink-100 p-5 md:p-8 flex-grow overflow-hidden break-words w-full">
-            {activeTopic ? (
-              <>
-                <h3 className="text-xl md:text-3xl font-extrabold text-pink-600 mb-4 pb-3 border-b border-pink-100 break-words">
-                  {activeTopic.title}
-                </h3>
-                
-                <div className="text-slate-700 leading-relaxed space-y-3 w-full max-w-full text-sm md:text-base">
-                  {activeTopic.content.split('\n').map((line, idx) => {
-                    const tLine = line.trim();
-                    
-                    if (tLine.startsWith('###')) {
-                      return <h4 key={idx} className="text-lg md:text-xl font-bold text-pink-600 mt-6 mb-2 border-b border-pink-50 pb-1 break-words">{tLine.replace('### ', '')}</h4>;
-                    }
-                    
-                    // Fixed bullet point rendering (prevents mobile width overflow bug)
-                    if (tLine.startsWith('- **')) {
-                        const parts = tLine.split('**');
-                        return (
-                          <div key={idx} className="flex items-start gap-2 ml-1 md:ml-3">
-                            <span className="text-pink-500 font-bold mt-[1px]">•</span>
-                            <p className="flex-1 break-words min-w-0">
-                              <span className="font-bold text-slate-800">{parts[1]}</span>{parts[2]}
-                            </p>
-                          </div>
-                        );
-                    }
-                    
-                    if (tLine.startsWith('- ')) {
-                      return (
-                        <div key={idx} className="flex items-start gap-2 ml-1 md:ml-3">
-                          <span className="text-pink-500 font-bold mt-[1px]">•</span>
-                          <p className="flex-1 break-words min-w-0">{tLine.replace('- ', '')}</p>
-                        </div>
-                      );
-                    }
-                    
-                    if (tLine.startsWith('**')) {
-                        return <p key={idx} className="font-bold text-slate-800 mt-4 break-words">{tLine.replace(/\*\*/g, '')}</p>
-                    }
-                    
-                    if (tLine.startsWith('*(')) {
-                        return <p key={idx} className="italic text-pink-500 text-xs md:text-sm mt-4 bg-pink-50 p-3 rounded-lg border border-pink-100 break-words">{tLine.replace(/\*/g, '')}</p>
-                    }
-                    
-                    if (tLine === '') return <div key={idx} className="h-1 md:h-2"></div>;
-                    
-                    return <p key={idx} className="break-words">{tLine}</p>;
-                  })}
+          return (
+            <div className="min-h-screen flex flex-col font-sans text-slate-800 overflow-x-hidden">
+              
+              {/* HEADER */}
+              <header className="bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-md sticky top-0 z-20">
+                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center overflow-hidden">
+                  <div className="flex items-center space-x-2 truncate">
+                    <IconBookOpen className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0 text-pink-100" />
+                    <h1 className="text-xl md:text-2xl font-extrabold tracking-tight truncate">Hanis's PinkBook</h1>
+                  </div>
+                  
+                  {/* Mobile Menu Button */}
+                  <button 
+                    className="md:hidden p-2 bg-pink-600 rounded-lg hover:bg-pink-700 transition flex-shrink-0"
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  >
+                    {isMobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu className="w-5 h-5" />}
+                  </button>
                 </div>
-              </>
-            ) : (
-              <div className="h-full flex items-center justify-center text-pink-300">
-                <p>Select a topic to view details.</p>
-              </div>
-            )}
-          </div>
-        </section>
-      </main>
 
-      {/* FOOTER & DISCLAIMER */}
-      <footer className="bg-pink-100 text-pink-900 border-t border-pink-200 mt-auto py-8">
-        <div className="max-w-5xl mx-auto px-4 text-center space-y-2">
-          <p className="font-semibold text-lg text-pink-700">Hanis's PinkBook</p>
-          <div className="bg-pink-50 p-4 rounded-lg border border-pink-200 shadow-sm inline-block text-xs md:text-sm">
-            <span className="font-bold text-red-500">Disclaimer: </span>
-            This information is intended for educational and reference purposes only. It should not be used as a sole basis for diagnosing or treating patients. Always verify and confirm all clinical information and management plans with your supervising doctors, including Medical Officers (MOs), Physicians, and Consultants, before making any clinical decisions. 
-            <br/><br/>
-            <span className="font-bold text-pink-600">(By Hanis Ameera)</span>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
+                {/* Top Navigation (Desktop) */}
+                <div className="hidden md:flex flex-wrap bg-pink-600 px-4">
+                  <div className="max-w-7xl mx-auto flex space-x-1 overflow-x-auto">
+                    {Object.entries(bookData).map(([key, data]) => (
+                      <button
+                        key={key}
+                        onClick={() => handleCategoryChange(key)}
+                        className={`flex items-center space-x-2 px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
+                          activeCategory === key 
+                            ? 'bg-pink-50 text-pink-700 rounded-t-lg border-b-2 border-pink-500 shadow-sm' 
+                            : 'text-pink-100 hover:bg-pink-500 hover:text-white'
+                        }`}
+                      >
+                        {data.icon}
+                        <span>{data.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </header>
 
+              {/* Mobile Navigation Dropdown */}
+              {isMobileMenuOpen && (
+                <div className="md:hidden bg-pink-600 shadow-inner z-10 w-full">
+                  {Object.entries(bookData).map(([key, data]) => (
+                    <button
+                      key={key}
+                      onClick={() => handleCategoryChange(key)}
+                      className={`w-full flex items-center space-x-3 px-6 py-4 text-left font-medium border-b border-pink-500 ${
+                        activeCategory === key ? 'bg-pink-700 text-white' : 'text-pink-100'
+                      }`}
+                    >
+                      {data.icon}
+                      <span>{data.title}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* MAIN CONTENT AREA */}
+              <main className="flex-grow max-w-7xl mx-auto w-full flex flex-col md:flex-row py-4 px-2 md:py-6 md:px-4 gap-4 md:gap-6 overflow-hidden">
+                
+                {/* Sidebar Topics */}
+                <aside className="w-full md:w-1/3 lg:w-1/4 flex flex-col space-y-2 flex-shrink-0">
+                  <h2 className="text-base md:text-lg font-bold text-pink-700 uppercase tracking-wider mb-1 flex items-center border-b border-pink-200 pb-2 px-2">
+                    {currentCategoryData.icon}
+                    <span className="ml-2 truncate">{currentCategoryData.title}</span>
+                  </h2>
+                  
+                  <div className="bg-white rounded-xl shadow-sm border border-pink-100 overflow-hidden flex flex-col">
+                    <div className="max-h-[50vh] md:max-h-[70vh] overflow-y-auto p-2 space-y-1">
+                      {currentCategoryData.topics.map((topic) => (
+                        <button
+                          key={topic.id}
+                          onClick={() => {
+                            setActiveTopicId(topic.id);
+                            if(window.innerWidth < 768) {
+                              setTimeout(() => window.scrollTo({ top: document.getElementById('content-area').offsetTop - 20, behavior: 'smooth' }), 100);
+                            }
+                          }}
+                          className={`w-full text-left px-3 py-3 md:px-4 rounded-lg text-sm transition-all duration-200 ${
+                            activeTopicId === topic.id 
+                              ? 'bg-pink-100 text-pink-800 font-bold shadow-inner border-l-4 border-pink-500' 
+                              : 'text-slate-600 hover:bg-pink-50 hover:text-pink-600'
+                          }`}
+                        >
+                          {topic.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </aside>
+
+                {/* Note Content Display */}
+                <section id="content-area" className="w-full max-w-full md:w-2/3 lg:w-3/4 flex flex-col min-w-0 flex-shrink">
+                  <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-pink-100 p-5 md:p-8 flex-grow overflow-hidden break-words w-full">
+                    {activeTopic ? (
+                      <>
+                        <h3 className="text-xl md:text-3xl font-extrabold text-pink-600 mb-4 pb-3 border-b border-pink-100 break-words">
+                          {activeTopic.title}
+                        </h3>
+                        
+                        <div className="text-slate-700 leading-relaxed space-y-3 w-full max-w-full text-sm md:text-base">
+                          {activeTopic.content.split('\n').map((line, idx) => {
+                            const tLine = line.trim();
+                            
+                            if (tLine.startsWith('###')) {
+                              return <h4 key={idx} className="text-lg md:text-xl font-bold text-pink-600 mt-6 mb-2 border-b border-pink-50 pb-1 break-words">{tLine.replace('### ', '')}</h4>;
+                            }
+                            
+                            if (tLine.startsWith('- **')) {
+                                const parts = tLine.split('**');
+                                return (
+                                  <div key={idx} className="flex items-start gap-2 ml-1 md:ml-3">
+                                    <span className="text-pink-500 font-bold mt-[1px]">•</span>
+                                    <p className="flex-1 break-words min-w-0">
+                                      <span className="font-bold text-slate-800">{parts[1]}</span>{parts[2]}
+                                    </p>
+                                  </div>
+                                );
+                            }
+                            
+                            if (tLine.startsWith('- ')) {
+                              return (
+                                <div key={idx} className="flex items-start gap-2 ml-1 md:ml-3">
+                                  <span className="text-pink-500 font-bold mt-[1px]">•</span>
+                                  <p className="flex-1 break-words min-w-0">{tLine.replace('- ', '')}</p>
+                                </div>
+                              );
+                            }
+                            
+                            if (tLine.startsWith('**')) {
+                                return <p key={idx} className="font-bold text-slate-800 mt-4 break-words">{tLine.replace(/\*\*/g, '')}</p>
+                            }
+                            
+                            if (tLine.startsWith('*(')) {
+                                return <p key={idx} className="italic text-pink-500 text-xs md:text-sm mt-4 bg-pink-50 p-3 rounded-lg border border-pink-100 break-words">{tLine.replace(/\*/g, '')}</p>
+                            }
+                            
+                            if (tLine === '') return <div key={idx} className="h-1 md:h-2"></div>;
+                            
+                            return <p key={idx} className="break-words">{tLine}</p>;
+                          })}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-pink-300">
+                        <p>Select a topic to view details.</p>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              </main>
+
+              {/* FOOTER & DISCLAIMER */}
+              <footer className="bg-pink-100 text-pink-900 border-t border-pink-200 mt-auto py-8">
+                <div className="max-w-5xl mx-auto px-4 text-center space-y-2">
+                  <p className="font-semibold text-lg text-pink-700">Hanis's PinkBook</p>
+                  <div className="bg-pink-50 p-4 rounded-lg border border-pink-200 shadow-sm inline-block text-xs md:text-sm">
+                    <span className="font-bold text-red-500">Disclaimer: </span>
+                    This information is intended for educational and reference purposes only. It should not be used as a sole basis for diagnosing or treating patients. Always verify and confirm all clinical information and management plans with your supervising doctors, including Medical Officers (MOs), Physicians, and Consultants, before making any clinical decisions. 
+                    <br/><br/>
+                    <span className="font-bold text-pink-600">(By Hanis Ameera)</span>
+                  </div>
+                </div>
+              </footer>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
 
