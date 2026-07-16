@@ -32,8 +32,18 @@
             title: "Internal Med",
             icon: <IconActivity className="w-5 h-5" />,
             topics: [
-              { 
-                id: 'acs', 
+              {
+                id: 'general_clerking',
+                title: 'General Clerking',
+                content: `### 1. General Clerking\n- Cases are usually seen in ED and referrals in periphery. Clerking is done in eHIS as *(Generic Progress Note)*.\n- Start by type of review: *(medical review in: red zone/yellow zone/peri etc)*\n- s/b Dr [Name] (seen by MO/specialist)\n- * Referred for...\n### 2. Current Problem / General Complaints\n- **Age/Race/Sex**\n- **Co-morbids** (k/c/o) - underlying disease, years diagnosed, medication, current follow up, other issues. *(eg: DM 7 years, on OHA (T MTF 500mg TDS), under f/up KK Ampang)*\n- **Presented with...** (p/w or c/o) *(Eg: p/w Cough 1/7 - productive with yellowish sputum, minimal amount, no blood)*\n- **Otherwise** *(Eg: NO fever, No UTI sx, no abdominal pain etc)*\n- **Social Hx** - Occupation, Marital status, smoking/alcohol etc\n- **Family Hx** - Strong hx of DM/HPT/Stroke/Ca/IHD *(eg: mother died of IHD, 80 years old with underlying HPT)*\n### 3. Physical Examination\n- **O/e:** Alert, conscious, non tachypnoic, hydration fair etc\n- **V/s:** BP, PR, RR, SpO2, T\n- Lungs bibasal crepitations, CVS S1S2 DRNM, No pedal edema\n### 4. Analysis / Assessment\n- ECG: SR, no acute ischaemic changes\n### 5. Lab & Imaging\n- **Lab:** LINK relevant results\n- **Imaging:** comment on CXR, CT brain etc *(Eg: CXR clear lung fields)*\n### 6. Medication, Management & Diagnosis\n- **Medication:** Pt's old meds... T MTF 500mg TDS...etc\n- **Management:** management/plan carried out in ED *(eg: In ED given crushed Aspirin 300mg stat...)*\n- **Diagnosis:** give an impression *(Imp: 1) CAP)*\n- **Plan:** Admit ward 6B acute, IV Rocephine 2g stat BD, etc\n- **Investigations:** septic workout, FBC/RP/LFT etc\n### 7. Writing an Entry in Ward\n- **Admission review** - must be done for all patients, and presented to specialist on call.\n- **AM/PM/On-call review**\n- **Transfer Out summary** -> for patients who are being transferred out to another ward\n- **Transfer In summary** -> for patients transferred in from other wards\n- Entry format: Date/Time, then *(Type of Review: Admission/AM/PM/On Call)*, then s/b Dr [Name] @ time (seen by MO/Specialist).\n- Worked example: 75 years old / Malay / gentleman. k/c/o: 1) HPT (10 years) on T Perindopril 2mg OD, f/up KK Ampang. 2) DM (10 years) on OHA, f/up KK Ampang.\n- Current Imp: 1) CAP. p/w: 1) Cough 3/7 - productive with yellowish sputum.\n- Otherwise: no fever, no LOA/LOW etc. Social Hx.... F Hx....\n- On Arrival in ED: o/e: Alert, conscious. BP 120/30, PR 88, RR 20, SpO2 99% RA, T 38, DXT 5.6. Lungs clear, CVS DRNM, PA soft non tender, no pedal edema.\n- ECG: SR, no acute ischaemic changes. CXR: bibasal haziness. FBC: Hb.. WCC 13. RP:.... LFT:....\n- Pt's Old Medications: T. Perindopril 2mg OD, T MTF 500mg TDS.\n- Progress: currently well, no active complaints, no SOB, minimal cough.\n- Ix: Septic workout, FBC/RP/LFT c/m. Plan: 1) septic workout 2) IV Rocephine 2g stat then OD.\n### 8. Documentation Notes\n- Documentation is very important medico-legally, so make sure everything is documented properly!\n- S/T MO/specialist... D/w specialist... Requests for blood or radiology imaging etc MUST be documented.\n- Any events, other than ward round reviews should be documented as *(Ad-hoc entry)*.\n- *(Retrospective entry)* may be used if you are unable to document during time of the event, hence you may come back and document it later.\n- When seen by MO/specialist, *(case and progress noted)* is written, followed by progress, physical examination and plan.\n- Always remember to sign off and stamp every entry.`,
+                images: [
+                  { src: 'images/internal/general_clerking/01-general-clerking-template.png', caption: 'General Clerking template' },
+                  { src: 'images/internal/general_clerking/02-ward-entry-example-1.jpg', caption: 'Writing a ward entry — worked example (1/2)' },
+                  { src: 'images/internal/general_clerking/03-ward-entry-example-2.jpg', caption: 'Writing a ward entry — worked example (2/2)' }
+                ]
+              },
+              {
+                id: 'acs',
                 title: 'ACS (Acute Coronary Syndrome)', 
                 content: `### 1. Definition / Introduction\n- Encompasses Unstable Angina (UA) and NSTEMI. Imbalance of myocardial oxygen supply/demand due to subtotal occlusive thrombus.\n### 2. Etiology / Risk Factors\n- Modifiable: HTN, DM, Dyslipidemia, Smoking, Obesity. Non-modifiable: Age, Male gender, FHx of premature CAD.\n### 3. Clinical Presentation\n- Ischemic chest pain (crushing/heavy), radiates to jaw/arm, diaphoresis. Atypical in elderly/females (epigastric pain, syncope).\n### 4. Diagnostic Criteria / Classifications\n- NSTEMI: Ischemic symptoms + ECG changes + **Elevated Biomarkers**.\n- UA: Ischemic symptoms + **Normal Biomarkers**.\n### 5. Investigations\n- 12-lead ECG: ST depression (≥0.5mm), T-wave inversion. (May be normal in UA).\n- Biomarkers: Serial Troponin T/I (0h and 3h/6h).\n- Bloods: FBC, RP, LFT, Lipids. Portable CXR.\n### 6. Comprehensive Management\n- Acute: Admit CCU. Oxygen ONLY if SpO2 <90%. Analgesia (SL GTN 0.5mg PRN, IV Morphine 2-5mg).\n- DAPT: T. Aspirin 300mg stat + T. Clopidogrel 300mg stat.\n- Anticoagulation: S/C Enoxaparin 1mg/kg BD.\n- GDMT: T. Atorvastatin 40-80mg ON, Beta-blocker (Bisoprolol).\n- Plan: Calculate TIMI score. High risk = Early Angiogram.\n### 7. Complications\n- Arrhythmias (VT/VF), Acute Heart Failure, Mechanical complications.` 
               },
@@ -350,6 +360,7 @@
           const [activeCategory, setActiveCategory] = useState('internal');
           const [activeTopicId, setActiveTopicId] = useState(bookData['internal'].topics[0].id);
           const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+          const [lightboxImage, setLightboxImage] = useState(null);
 
           const handleCategoryChange = (catKey) => {
             setActiveCategory(catKey);
@@ -516,6 +527,26 @@
                             );
                           })}
                         </div>
+
+                        {activeTopic.images && activeTopic.images.length > 0 && (
+                          <div className="mt-8 pt-6 border-t border-pink-100">
+                            <h4 className="text-lg md:text-xl font-bold text-pink-600 mb-3">Illustrations</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {activeTopic.images.map((img, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => setLightboxImage(img)}
+                                  className="text-left bg-pink-50 border border-pink-100 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                                >
+                                  <img src={img.src} alt={img.caption || activeTopic.title} className="w-full h-48 object-cover" />
+                                  {img.caption && (
+                                    <p className="text-xs md:text-sm text-slate-600 p-2">{img.caption}</p>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </>
                     ) : (
                       <div className="h-full flex items-center justify-center text-pink-300">
@@ -538,6 +569,26 @@
                   </div>
                 </div>
               </footer>
+
+              {lightboxImage && (
+                <div
+                  className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+                  onClick={() => setLightboxImage(null)}
+                >
+                  <button
+                    className="absolute top-4 right-4 text-white p-2 bg-pink-600 rounded-lg hover:bg-pink-700"
+                    onClick={() => setLightboxImage(null)}
+                  >
+                    <IconX className="w-6 h-6" />
+                  </button>
+                  <figure className="max-w-4xl max-h-full flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+                    <img src={lightboxImage.src} alt={lightboxImage.caption || ''} className="max-w-full max-h-[80vh] rounded-lg shadow-2xl object-contain" />
+                    {lightboxImage.caption && (
+                      <figcaption className="text-pink-100 text-sm md:text-base mt-3 text-center">{lightboxImage.caption}</figcaption>
+                    )}
+                  </figure>
+                </div>
+              )}
             </div>
           );
         }
